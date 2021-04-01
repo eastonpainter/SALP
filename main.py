@@ -28,7 +28,16 @@ for i in range(len(lines_arr)):
 
 #user_list_str = re.sub(" has just restocked one item in the shop!", "", lines_arr_nn)
 
-print(np.array2string(lines_arr_nn, separator=', '))
+# print(np.array2string(lines_arr_nn, separator=', '))
+
+for i in range(len(lines_arr_nn)):
+    if (lines_arr_nn[i] in indexed) != True:
+        indexed[lines_arr_nn[i]] = 1
+
+    else:
+        indexed[lines_arr_nn[i]] += 1
+
+print(indexed)
 
 """
 print(lines_arr)
