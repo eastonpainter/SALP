@@ -2,8 +2,14 @@ import re
 import numpy as np
 import sys
 
-with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
-    txt = file.read()
+log = input("Which log? :: ")
+
+if log == "mar":
+    with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
+        txt = file.read()
+elif log == "feb":
+    with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
+        txt = file.read()
 
 # Indexed dict containing all usernames and occurences of said usernames
 indexed = {}
