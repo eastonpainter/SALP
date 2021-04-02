@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import sys
+import time
     
 # User input for log choice
 # TODO: add custom .txt input
@@ -59,7 +60,8 @@ try:
             else:
                 indexed[restockers[i]] += 1
 
-    # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence, "Len" prints the number of restocks in that time period
+    # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
+    # ...  "Len" prints the number of restocks in that time period
     print_choice = input("Indexes // Print // Len [1/2/3] :: ")
     
     if print_choice == "1":
@@ -73,6 +75,20 @@ try:
    
     elif print_choice == "4":
        print("What're you trying to pull?")
+    
+    elif print_choice == "5":
+        print("Listen man, there's nothing here for you")
+
+    elif print_choice == "6":
+        print("You're really starting to annoy me pal")
+
+    elif print_choice == "7":
+        print("We don't have any more options! Go away!")
+    
+    elif print_choice == "8":
+        print("That's it! I'm closing the prompt!\n...")
+        sleep(2)
+        exit()
 
     else:
         print("Invalid input\n")
