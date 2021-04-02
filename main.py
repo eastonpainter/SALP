@@ -37,7 +37,6 @@ try:
     for i in range(len(lines_arr_nn)):
         if (lines_arr_nn[i] in indexed) != True:
             indexed[lines_arr_nn[i]] = 1
-    
         else:
             indexed[lines_arr_nn[i]] += 1
     
@@ -53,7 +52,7 @@ try:
     elif choice == "3":
         print(len(lines_arr))
    
-   elif choice == "4":
+    elif choice == "4":
        print("What're you trying to pull?")
 
     else:
