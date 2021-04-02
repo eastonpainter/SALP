@@ -80,13 +80,13 @@ try:
         print("Listen man, there's nothing here for you")
 
     elif print_choice == "6":
-        print("You're really starting to annoy me pal")
+        print("You're really starting to annoy me pal!")
 
     elif print_choice == "7":
         print("We don't have any more options! Go away!")
     
     elif print_choice == "8":
-        print("That's it! I'm closing the prompt!\n...")
+        print("That's it! I'm closing the prompt!\n.\n..\n...")
         sleep(2)
         exit()
 
