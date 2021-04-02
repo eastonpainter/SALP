@@ -31,7 +31,7 @@ try:
     # Function to count restocks of whatever is called
     # "num", "word", and "char" are used for user input, while "text" is the restock text
     def restock_count(num, word, char, text):
-        if restock_choice == num or restock_choice == word or restock_choice == :
+        if restock_choice == num or restock_choice == word or restock_choice == char:
             # Sets lines_arr equal to all restock notifs in the text
             lines_arr = np.array(re.findall("\n.+{}\n".format(text), txt))
 
