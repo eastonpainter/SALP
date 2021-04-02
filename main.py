@@ -48,7 +48,7 @@ try:
                     indexed[restockers[i]] += 1
 
     restock_count("1", "shop", "s", " has just restocked one item in the shop!")
-    restock_count("2", "vending", "t", " has just restocked a vending machine!")
+    restock_count("2", "vending", "v", " has just restocked a vending machine!")
     restock_count("3", "turret", "t", " has just restocked a turret!")
 
     # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
