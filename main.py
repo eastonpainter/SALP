@@ -1,8 +1,8 @@
 import re
 import numpy as np
 import sys
-import time
-    
+from time import sleep
+
 # User input for log choice
 # TODO: add custom .txt input
 try:
@@ -91,7 +91,7 @@ try:
         exit()
 
     else:
-        print("Invalid input\n")
+        print("\nInvalid input\n")
 
 except KeyboardInterrupt: 
     print("\n\nProgram stopped\n")
