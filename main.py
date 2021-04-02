@@ -25,9 +25,10 @@ try:
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
     
+
     # Sets lines_arr equal to all restock notifs in the text
     lines_arr = np.array(re.findall("\n.+ has just restocked one item in the shop!\n", txt))
-    
+
     # Trims the newline and the excess text from lines_arr and moves it to lines_arr_nn
     for i in range(len(lines_arr)):
         lines_arr_nn = np.append(lines_arr_nn, re.sub("\n", "", lines_arr[i])) 
@@ -41,18 +42,18 @@ try:
             indexed[lines_arr_nn[i]] += 1
     
     # Indexes prints amounts of restocks, print prints all names in order of occurence, len prints the number of restocks in that time period
-    choice = input("Indexes // Print // Len [1/2/3] :: ")
+    print_choice = input("Indexes // Print // Len [1/2/3] :: ")
     
-    if choice == "1":
+    if print_choice == "1":
         print(indexed)
     
-    elif choice == "2":
+    elif print_choice == "2":
         print(lines_arr_nn)
     
-    elif choice == "3":
+    elif print_choice == "3":
         print(len(lines_arr))
    
-    elif choice == "4":
+    elif print_choice == "4":
        print("What're you trying to pull?")
 
     else:
