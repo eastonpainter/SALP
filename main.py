@@ -17,38 +17,56 @@ try:
         with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
             txt = file.read()
     
+    # Untruncates numpy array output
+    np.set_printoptions(threshold=sys.maxsize)
+
     # Indexed dict containing all usernames and occurences of said usernames
     indexed = {}
     # Restocks array without excess
-    lines_arr_nn = np.array([])
-    
-    # Untruncates numpy array output
-    np.set_printoptions(threshold=sys.maxsize)
-    
+    restockers = np.array([])
+    # Choose vending/shop/both
+    restock_choice = input("Shop // Vending // Both? [1/2/3] :: ")
+     
+    if restock_choice == "1" or restock_choice == "shop":
+        # Sets lines_arr equal to all restock notifs in the text
+        lines_arr = np.array(re.findall("\n.+ has just restocked one item in the shop!\n", txt))
 
-    # Sets lines_arr equal to all restock notifs in the text
-    lines_arr = np.array(re.findall("\n.+ has just restocked one item in the shop!\n", txt))
+        # Trims the newline and the excess text from lines_arr and moves it to restockers
+        for i in range(len(lines_arr)):
+            restockers = np.append(restockers, re.sub("\n", "", lines_arr[i])) 
+            np.put(restockers, i, re.sub(" has just restocked one item in the shop!", "", restockers[i]))
+        
+        # Indexes values by restock amount
+        for i in range(len(restockers)):
+            if (restockers[i] in indexed) != True:
+                indexed[restockers[i]] = 1
+            else:
+                indexed[restockers[i]] += 1
+    
+    if restock_choice == "2" or restock_choice == "vending":
+        # Sets lines_arr equal to all restock notifs in the text
+        lines_arr = np.array(re.findall("\n.+ has just restocked a vending machine!\n", txt))
 
-    # Trims the newline and the excess text from lines_arr and moves it to lines_arr_nn
-    for i in range(len(lines_arr)):
-        lines_arr_nn = np.append(lines_arr_nn, re.sub("\n", "", lines_arr[i])) 
-        np.put(lines_arr_nn, i, re.sub(" has just restocked one item in the shop!", "", lines_arr_nn[i]))
-    
-    # Indexes values by restock amount
-    for i in range(len(lines_arr_nn)):
-        if (lines_arr_nn[i] in indexed) != True:
-            indexed[lines_arr_nn[i]] = 1
-        else:
-            indexed[lines_arr_nn[i]] += 1
-    
-    # Indexes prints amounts of restocks, print prints all names in order of occurence, len prints the number of restocks in that time period
+        # Trims the newline and the excess text from lines_arr and moves it to restockers
+        for i in range(len(lines_arr)):
+            restockers = np.append(restockers, re.sub("\n", "", lines_arr[i])) 
+            np.put(restockers, i, re.sub(" has just restocked a vending machine!", "", restockers[i]))
+        
+        # Indexes values by restock amount
+        for i in range(len(restockers)):
+            if (restockers[i] in indexed) != True:
+                indexed[restockers[i]] = 1
+            else:
+                indexed[restockers[i]] += 1
+
+    # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence, "Len" prints the number of restocks in that time period
     print_choice = input("Indexes // Print // Len [1/2/3] :: ")
     
     if print_choice == "1":
         print(indexed)
     
     elif print_choice == "2":
-        print(lines_arr_nn)
+        print(restockers)
     
     elif print_choice == "3":
         print(len(lines_arr))
