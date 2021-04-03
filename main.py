@@ -1,11 +1,15 @@
 import re
 import numpy as np
+import tkinter as tk
 import sys
 # import march
 
 # User input for log choice
 # TODO: add custom .txt input
 # TODO: add command support
+
+height = 500
+width = 600
 
 # Try/Except statement for keyboard interrupt 
 try:
