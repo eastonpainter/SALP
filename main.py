@@ -9,7 +9,7 @@ import sys
 
 # Try/Except statement for keyboard interrupt 
 try:
-    log = input("Which log? [m/f/m2]:: ")
+    log = input("Which log? [m/f/m2] :: ")
 
     # March logs input
     if log == "mar" or log == "1" or log == "m1":
@@ -34,6 +34,7 @@ try:
     restockers = np.array([])
     # Choose vending/shop/both
     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+    rmsg = " has just restocked "
 
     # Finds maximum key of inputted dictionary and outputs it with username
     def max_key(dict1):
@@ -45,7 +46,36 @@ try:
                 user = list(dict1)[i]
 
         print(user + " ::  " + str(max1))
-     
+
+    def sort_dict(indexes, pretty):
+        dict_len = len(indexes)
+        # Sorts the dict by value in least to greatest
+        sorted_dict = {}
+        sorted_keys = sorted(indexes, key=indexes.get)
+
+        for w in sorted_keys:
+            sorted_dict[w] = indexes[w]
+
+        # Creates two separate sorted arrays for the values and keys 
+        rev_vals = list(reversed(list(sorted_dict.values())))
+        rev_keys = list(reversed(list(sorted_dict.keys())))
+
+        # Zips the two sorted arrays
+        final = dict(zip(rev_keys, rev_vals))
+        
+        if pretty == 'n':
+            print(final)
+
+        elif pretty == 'y':
+            for i in range(dict_len):
+                print(str(i+1) + ". " + str(rev_keys[i]) + " ::: " + str(rev_vals[i]))
+
+        elif pretty == 'd':
+            print(indexes)
+
+        else:
+            print("Invalid argument for sort_dict()")
+
     # Function to count restocks of whatever is called
     # "num", "word", and "char" are used for user input, while "text" is the restock text
     def restock_count(num, word, char, text):
@@ -67,17 +97,23 @@ try:
                     indexed[restockers[i]] += 1
 
     # Restock counting functions for different types
-    restock_count("1", "shop", "s", " has just restocked one item in the shop!")
-    restock_count("2", "vending", "v", " has just restocked a vending machine!")
-    restock_count("3", "turret", "t", " has just restocked a turret!")
+    restock_count("1", "shop", "s", rmsg + "one item in the shop!")
+    restock_count("2", "vending", "v", rmsg + "a vending machine!")
+    restock_count("3", "turret", "t", rmsg + "a turret!")
 
     # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
     # ...  "Len" prints the number of restocks in that time period
     print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
     if print_choice == "1":
-        print(indexed)
-    
+        pretty = input("Pretty? [y/n/d] :: ")
+        if pretty == 'y':
+            sort_dict(indexed, pretty)
+        elif pretty == 'n':
+            sort_dict(indexed, pretty)
+        elif pretty == 'd':
+            sort_dict(indexed, pretty)
+
     elif print_choice == "2":
         print(restockers)
     
