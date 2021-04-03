@@ -1,34 +1,50 @@
 import re
 import numpy as np
 import sys
+# import march
 
 # User input for log choice
 # TODO: add custom .txt input
 # TODO: add command support
-try:
-#    log = input("Which log? :: ")
-#
-#    # March logs input
-#    if log == "mar" or log == "1" or log == "m":
-#        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
-#            txt = file.read()
-#
-#    # February logs input
-#    elif log == "feb" or log == "2" or log == "f":
-#        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
-#            txt = file.read()
 
-    with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r') as file:
+# Try/Except statement for keyboard interrupt 
+try:
+    log = input("Which log? [m/f/m2]:: ")
+
+    # March logs input
+    if log == "mar" or log == "1" or log == "m1":
+        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
             txt = file.read()
+
+    # February logs input
+    elif log == "feb" or log == "2" or log == "f":
+        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
+            txt = file.read()
+
+    # Complete March logs input
+    elif log == "mar2" or log == "3" or log == "m2":
+        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r') as file:
+                txt = file.read()
+
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
-
     # Indexed dict containing all usernames and occurences of said usernames
     indexed = {}
     # Restocks array without excess
     restockers = np.array([])
     # Choose vending/shop/both
-    restock_choice = input("Shop // Vending // Turret // All? [1/2/3/4] :: ")
+    restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+
+    # Finds maximum key of inputted dictionary and outputs it with username
+    def max_key(dict1):
+        max1 = list(indexed.values())[0]
+        user = ''
+        for i in range(len(list(dict1.values()))):
+            if list(dict1.values())[i] > max1:
+                max1 = list(dict1.values())[i]
+                user = list(dict1)[i]
+
+        print(user + " ::  " + str(max1))
      
     # Function to count restocks of whatever is called
     # "num", "word", and "char" are used for user input, while "text" is the restock text
@@ -50,14 +66,15 @@ try:
                 else:
                     indexed[restockers[i]] += 1
 
+    # Restock counting functions for different types
     restock_count("1", "shop", "s", " has just restocked one item in the shop!")
     restock_count("2", "vending", "v", " has just restocked a vending machine!")
     restock_count("3", "turret", "t", " has just restocked a turret!")
 
     # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
     # ...  "Len" prints the number of restocks in that time period
-    print_choice = input("Indexes // Print // Len [1/2/3] :: ")
-    
+    print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+
     if print_choice == "1":
         print(indexed)
     
@@ -66,6 +83,9 @@ try:
     
     elif print_choice == "3":
         print(len(restockers))
+
+    elif print_choice == "4":
+        max_key(indexed)
 
     else:
         print("\nInvalid input\n")
