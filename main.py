@@ -4,19 +4,22 @@ import sys
 
 # User input for log choice
 # TODO: add custom .txt input
+# TODO: add command support
 try:
-    log = input("Which log? :: ")
+#    log = input("Which log? :: ")
+#
+#    # March logs input
+#    if log == "mar" or log == "1" or log == "m":
+#        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
+#            txt = file.read()
+#
+#    # February logs input
+#    elif log == "feb" or log == "2" or log == "f":
+#        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
+#            txt = file.read()
 
-    # March logs input
-    if log == "mar" or log == "1":
-        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r') as file:
+    with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r') as file:
             txt = file.read()
-
-    # February logs input
-    elif log == "feb" or log == "2":
-        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r') as file:
-            txt = file.read()
-
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
 
@@ -25,7 +28,7 @@ try:
     # Restocks array without excess
     restockers = np.array([])
     # Choose vending/shop/both
-    restock_choice = input("Shop // Vending // Turret // Both? [1/2/3/4] :: ")
+    restock_choice = input("Shop // Vending // Turret // All? [1/2/3/4] :: ")
      
     # Function to count restocks of whatever is called
     # "num", "word", and "char" are used for user input, while "text" is the restock text
@@ -33,7 +36,7 @@ try:
         global lines_arr
         global restockers
         global indexed 
-        if restock_choice == num or restock_choice == word or restock_choice == char:
+        if restock_choice == num or restock_choice == word or restock_choice == char or restock_choice == "4":
             # Sets lines_arr equal to all restock notifs in the text
             lines_arr = np.array(re.findall("\n.+" + text + "\n", txt))
             # Trims the newline and the excess text from lines_arr and moves it to restockers
@@ -62,7 +65,7 @@ try:
         print(restockers)
     
     elif print_choice == "3":
-        print(len(lines_arr))
+        print(len(restockers))
 
     else:
         print("\nInvalid input\n")
