@@ -18,12 +18,12 @@ try:
 
     # February logs input
     elif log == "feb" or log == "2" or log == "f":
-        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r'), encoding='ut8' as file:
+        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r', encoding='ut8') as file:
             txt = file.read()
 
     # Complete March logs input
     elif log == "mar2" or log == "3" or log == "m2":
-        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r'), encoding='ut8' as file:
+        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r', encoding='ut8') as file:
                 txt = file.read()
 
     # Untruncates numpy array output
