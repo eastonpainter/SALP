@@ -117,6 +117,8 @@ try:
             sort_dict(indexed, pretty)
         elif pretty == 'd':
             sort_dict(indexed, pretty)
+        elif pretty == 'csv':
+            sort_dict(indexed, pretty)
 
     elif print_choice == "2":
         print(restockers)
