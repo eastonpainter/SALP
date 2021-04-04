@@ -110,7 +110,7 @@ try:
     print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
     if print_choice == "1":
-        pretty = input("Pretty? [y/n/d] :: ")
+        pretty = input("Pretty? [y/n/d/csv] :: ")
         if pretty == 'y':
             sort_dict(indexed, pretty)
         elif pretty == 'n':
