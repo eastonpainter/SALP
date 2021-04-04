@@ -73,7 +73,7 @@ try:
         elif pretty == 'd':
             print(indexes)
 
-        elif pretty = 'csv':
+        elif pretty == 'csv':
             for i in range(dict_len):
                 print(str(rev_keys[i]) + "," + str(rev_vals[i]))
 
