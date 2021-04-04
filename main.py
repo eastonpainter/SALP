@@ -5,6 +5,10 @@ import sys
 
 # User input for log choice
 # TODO: add custom .txt input
+# TODO: add processing for time and repairs
+# TODO: custom time input
+# TODO: finish GUI
+# TODO: add total restocks
 # TODO: add command support
 
 # Try/Except statement for keyboard interrupt 
