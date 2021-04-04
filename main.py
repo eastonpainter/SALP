@@ -75,6 +75,7 @@ try:
 
         elif pretty == 'csv':
             for i in range(dict_len):
+                print("", file=open("output.csv", "w")
                 print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
         else:
