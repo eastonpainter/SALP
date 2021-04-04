@@ -75,7 +75,7 @@ try:
 
         elif pretty == 'csv':
             for i in range(dict_len):
-                print(str(rev_keys[i]) + "," + str(rev_vals[i]))
+                print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "w")
 
         else:
             print("Invalid argument for sort_dict()")
