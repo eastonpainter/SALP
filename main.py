@@ -13,7 +13,7 @@ import sys
 
 # Try/Except statement for keyboard interrupt 
 try:
-    log = input("Which log? [m/f/m2] :: ")
+    log = input("Which log? [m/f/m2/time] :: ")
 
     # March logs input
     if log == "mar" or log == "1" or log == "m1":
@@ -29,6 +29,10 @@ try:
     elif log == "mar2" or log == "3" or log == "m2":
         with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r', encoding='utf8') as file:
                 txt = file.read()
+
+    elif log == "timemarch" or log == "4" or log == "tm":
+        with open('', 'r', encoding='utf8') as file:
+            txt = file.read()
 
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
@@ -91,6 +95,7 @@ try:
         global lines_arr
         global restockers
         global indexed 
+        global txt 
         if restock_choice == num or restock_choice == word or restock_choice == char or restock_choice == "4":
             # Sets lines_arr equal to all restock notifs in the text
             lines_arr = np.array(re.findall("\n.+" + text + "\n", txt))
