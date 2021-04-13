@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import sys
+import datetime
 # import march
 
 # User input for log choice
@@ -45,6 +46,7 @@ try:
     active_users = np.array([])
     time_logged = np.array([])
     secs_logged = np.array([])
+
     
     # Choose vending/shop/both
     if log != "4": 
@@ -108,6 +110,7 @@ try:
         global restockers
         global indexed 
         global txt 
+
         if restock_choice == num or restock_choice == word or restock_choice == char or restock_choice == "4":
             # Sets lines_arr equal to all restock notifs in the text
             lines_arr = np.array(re.findall("\n.+" + text + "\n", txt))
@@ -133,20 +136,23 @@ try:
         global active_users
         global time_logged
         global secs_logged
+
         # Sets lines_arr equal to all lines containing session time
         lines_arr = np.array(re.findall("\n.+'s Session Time: \d{2}h:\d{2}m:\d{2}s\n", txt))
+        datalen = range(len(lines_arr))
+
         # Creates an array with all the users who logged time in the text
-        for i in range(len(lines_arr)):
+        for i in datalen:
             active_users = np.append(active_users, re.sub("\n", "", lines_arr[i])) 
             np.put(active_users, i, re.sub("'s Session Time.+$", "", active_users[i]))
         
         # Makes an array of all logged times in hh:mm:ss
-        for i in range(len(lines_arr)):
+        for i in datalen:
             time_logged = np.append(time_logged, re.sub("\n", "", lines_arr[i])) 
             np.put(time_logged, i, re.sub(".+'s Session Time: ", "",  time_logged[i]))
 
         # Makes an array of all logged times in seconds
-        for i in range(len(lines_arr)):
+        for i in datalen:
             secs_logged = np.append(secs_logged, get_sec(time_logged[i]))
         
         # user_times_secs = dict(zip(active_users, secs_logged))
@@ -155,11 +161,38 @@ try:
         # print(user_times)
         # print("\n\n" + str(len(user_times_secs)) + "\n" + str(len(user_times)))
 
-        # for i range(len(singles):
-        #   target = singles[i]
-        #   for j in range(len(dups):
-        #       if dups[j] == target:
-        #           singles[target] = seconds[j]
+        # Makes a list of unique users in the dict, indexed
+        for i in datalen:
+            if active_users[i] not in indexed:
+                indexed[active_users[i]] = 0
+
+        # Array of unique users for easy access
+        uni_users = list(indexed.keys())
+        
+        # print(len(lines_arr))
+        # print(str(len(active_users)) + "\n")
+        # print(uni_users) 
+        # print(indexed)
+        # print("\n\nNumber of active users in march: " + str(len(indexed)))
+        
+        # Pseudocode for time parser
+        for i in range(len(uni_users)):
+            user = uni_users[i]
+            for j in datalen:
+                if active_users[j] == user:
+                    indexed[user] += int(secs_logged[j])
+
+        # print(indexed)
+        # print("\n\n")
+        # print("Len of unique users: " + str(len(uni_users)))
+        # print("Len of uniqe users AND their total time (in seconds): " + str(len(indexed)))
+
+        # str(datetime.timedelta(seconds=666))
+        total_secs = list(indexed.values())
+        for i in range(len(total_secs)):
+            print(i)
+            total_secs[i] = str(datetime.timedelta(seconds=total_secs[i]))
+        print(total_secs)
 
         exit()
 
