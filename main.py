@@ -190,9 +190,11 @@ try:
         # str(datetime.timedelta(seconds=666))
         total_secs = list(indexed.values())
         for i in range(len(total_secs)):
-            print(i)
+            # print(i)
             total_secs[i] = str(datetime.timedelta(seconds=total_secs[i]))
-        print(total_secs)
+
+        final = dict(zip(uni_users, total_secs))
+        print(final)
 
         exit()
 
