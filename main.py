@@ -125,6 +125,35 @@ try:
                 else:
                     indexed[restockers[i]] += 1
     
+    def pretty_dict(index):
+        pretty = input("Pretty? [y/n/d/csv] :: ")
+        if pretty == 'y':
+            sort_dict(index, pretty)
+        elif pretty == 'n':
+            sort_dict(index, pretty)
+        elif pretty == 'd':
+            sort_dict(index, pretty)
+        elif pretty == 'csv':
+            sort_dict(index, pretty)
+
+    def print_style(index):
+        print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+
+        if print_choice == "1":
+            pretty_dict(index)
+
+        elif print_choice == "2":
+            print(index)
+        
+        elif print_choice == "3":
+            print(len(index))
+
+        elif print_choice == "4":
+            max_key(index)
+
+        else:
+            print("\nInvalid input\n")
+
     def get_sec(time_str):
         time_str = re.sub("[hms]", "", time_str)
         h, m, s = time_str.split(':')
@@ -209,28 +238,7 @@ try:
     if log != "timemarch" or log != "4" or log != "tm": 
         print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
-    if print_choice == "1":
-        pretty = input("Pretty? [y/n/d/csv] :: ")
-        if pretty == 'y':
-            sort_dict(indexed, pretty)
-        elif pretty == 'n':
-            sort_dict(indexed, pretty)
-        elif pretty == 'd':
-            sort_dict(indexed, pretty)
-        elif pretty == 'csv':
-            sort_dict(indexed, pretty)
-
-    elif print_choice == "2":
-        print(restockers)
-    
-    elif print_choice == "3":
-        print(len(restockers))
-
-    elif print_choice == "4":
-        max_key(indexed)
-
-    else:
-        print("\nInvalid input\n")
+    print_style(indexed)
 
 except KeyboardInterrupt: 
     print("\n\nProgram stopped\n")
