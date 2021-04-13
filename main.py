@@ -73,8 +73,11 @@ try:
         dict_len = len(indexes)
         # Sorts the dict by value in least to greatest
         sorted_dict = {}
+        # Sorts the keys by their value
         sorted_keys = sorted(indexes, key=indexes.get)
 
+        # Sorts the keys by their value, then put the values to their keys
+        # Sets each value and key equal to the keys of the indexes
         for w in sorted_keys:
             sorted_dict[w] = indexes[w]
 
@@ -96,8 +99,8 @@ try:
             print(indexes)
 
         elif pretty == 'csv':
+            print("", file=open("output.csv", "w"))
             for i in range(dict_len):
-                print("", file=open("output.csv", "w"))
                 print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
         else:
@@ -118,6 +121,7 @@ try:
             for i in range(len(lines_arr)):
                 restockers = np.append(restockers, re.sub("\n", "", lines_arr[i])) 
                 np.put(restockers, i, re.sub(text, "", restockers[i]))
+
             # Indexes values by restock amount
             for i in range(len(restockers)):
                 if (restockers[i] in indexed) != True:
