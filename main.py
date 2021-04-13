@@ -222,8 +222,10 @@ try:
             # print(i)
             total_secs[i] = str(datetime.timedelta(seconds=total_secs[i]))
 
+        # Completed dict with names and total times
         final = dict(zip(uni_users, total_secs))
-        print(final)
+
+        print_style(final)
 
         exit()
 
