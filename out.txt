@@ -1,0 +1,5 @@
+Note: only '4' input is supported for time
+Which log? [m/f/m2/time] :: 
+
+Program stopped
+
