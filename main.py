@@ -11,8 +11,10 @@ import sys
 # TODO: add total restocks
 # TODO: add command support
 
+print("Note: only '4' input is supported for time")
 # Try/Except statement for keyboard interrupt 
 try:
+    global log
     log = input("Which log? [m/f/m2/time] :: ")
 
     # March logs input
@@ -31,7 +33,7 @@ try:
                 txt = file.read()
 
     elif log == "timemarch" or log == "4" or log == "tm":
-        with open('', 'r', encoding='utf8') as file:
+        with open('activity-logs-2021-02-28-to-2021-04-01.txt', 'r', encoding='utf8') as file:
             txt = file.read()
 
     # Untruncates numpy array output
@@ -40,14 +42,24 @@ try:
     indexed = {}
     # Restocks array without excess
     restockers = np.array([])
+    active_users = np.array([])
+    time_logged = np.array([])
+    secs_logged = np.array([])
+    
     # Choose vending/shop/both
-    restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+    if log != "4": 
+        restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+    # elif log != "timemarch": 
+    #     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+    # elif log != "tm": 
+    #     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
     rmsg = " has just restocked "
 
     # Finds maximum key of inputted dictionary and outputs it with username
     def max_key(dict1):
         max1 = list(indexed.values())[0]
         user = ''
+        # What is this? Lisp
         for i in range(len(list(dict1.values()))):
             if list(dict1.values())[i] > max1:
                 max1 = list(dict1.values())[i]
@@ -109,7 +121,49 @@ try:
                     indexed[restockers[i]] = 1
                 else:
                     indexed[restockers[i]] += 1
+    
+    def get_sec(time_str):
+        time_str = re.sub("[hms]", "", time_str)
+        h, m, s = time_str.split(':')
+        return int(int(h) * 3600 + int(m) * 60 + int(s))
 
+    # Mayusachi's Session Time: 00h:17m:51s 
+    def time_spent():
+        global txt
+        global active_users
+        global time_logged
+        global secs_logged
+        # Sets lines_arr equal to all lines containing session time
+        lines_arr = np.array(re.findall("\n.+'s Session Time: \d{2}h:\d{2}m:\d{2}s\n", txt))
+        # Creates an array with all the users who logged time in the text
+        for i in range(len(lines_arr)):
+            active_users = np.append(active_users, re.sub("\n", "", lines_arr[i])) 
+            np.put(active_users, i, re.sub("'s Session Time.+$", "", active_users[i]))
+        
+        # Makes an array of all logged times in hh:mm:ss
+        for i in range(len(lines_arr)):
+            time_logged = np.append(time_logged, re.sub("\n", "", lines_arr[i])) 
+            np.put(time_logged, i, re.sub(".+'s Session Time: ", "",  time_logged[i]))
+
+        # Makes an array of all logged times in seconds
+        for i in range(len(lines_arr)):
+            secs_logged = np.append(secs_logged, get_sec(time_logged[i]))
+        
+        # user_times_secs = dict(zip(active_users, secs_logged))
+        # print(user_times_secs)
+        # user_times = dict(zip(active_users, time_logged))
+        # print(user_times)
+        # print("\n\n" + str(len(user_times_secs)) + "\n" + str(len(user_times)))
+
+        # for i range(len(singles):
+        #   target = singles[i]
+        #   for j in range(len(dups):
+        #       if dups[j] == target:
+        #           singles[target] = seconds[j]
+
+        exit()
+
+    time_spent()
     # Restock counting functions for different types
     restock_count("1", "shop", "s", rmsg + "one item in the shop!")
     restock_count("2", "vending", "v", rmsg + "a vending machine!")
@@ -117,7 +171,8 @@ try:
 
     # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
     # ...  "Len" prints the number of restocks in that time period
-    print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+    if log != "timemarch" or log != "4" or log != "tm": 
+        print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
     if print_choice == "1":
         pretty = input("Pretty? [y/n/d/csv] :: ")
