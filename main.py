@@ -220,11 +220,19 @@ try:
         # print("Len of unique users: " + str(len(uni_users)))
         # print("Len of uniqe users AND their total time (in seconds): " + str(len(indexed)))
 
+        def secs_to_hms(seconds):
+            hours = seconds // (60*60)
+            seconds %= (60*60)
+            minutes = seconds // 60
+            seconds %= 60
+            return "%02i:%02i:%02i" % (hours, minutes, seconds)
+
         # str(datetime.timedelta(seconds=666))
         total_secs = list(indexed.values())
         for i in range(len(total_secs)):
             # print(i)
-            total_secs[i] = str(datetime.timedelta(seconds=total_secs[i]))
+            total_secs[i] = secs_to_hms(total_secs[i])
+            
 
         # Completed dict with names and total times
         final = dict(zip(uni_users, total_secs))
