@@ -92,8 +92,16 @@ try:
             print(final)
 
         elif pretty == 'y':
+            # Pos if adds a zero to non-three-digit numbers
             for i in range(dict_len):
-                print(str(i+1) + ". " + str(rev_keys[i]) + " ::: " + str(rev_vals[i]))
+                if i+1 < 10:
+                    pos = "00" + str(i+1)
+                elif i+1 < 100:
+                    pos = "0" + str(i+1)
+                else:
+                    pos = str(i+1)
+
+                print(pos + "-  " + str(rev_keys[i]) + " ::: " + str(rev_vals[i]))
 
         elif pretty == 'd':
             print(indexes)
