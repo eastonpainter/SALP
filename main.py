@@ -27,7 +27,7 @@ try:
     print("\n")
     print("Custom input     -->     5")
     print("Help             -->     help")  
-    print("\n"
+    print("\n")
     log = input("[1 / 2 / 3 / 4 / 5 / h] >>> ")
 
     # Encoding type for the file opens, utf8 for compatability
