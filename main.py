@@ -16,19 +16,14 @@ import datetime
 try:
     global log
     # Which file the user will read
-    print("\n")
-    print("Which log would you like to open? ::: ")
-    print("\n")
-    print(" Month           Type            Time          Date       ")
-    print(" > March         Restock         1 week        3/21 - 2/28")
-    print(" > February      Restock         5 days        2/14 - 2/19")
-    print(" > March         Restock         1 month       2/28 - 4/01")
-    print(" > March         Activity        1 month       2/28 - 4/01")
-    print("\n")
-    print("Custom input     -->     5")
-    print("Help             -->     help")  
-    print("\n")
-    log = input("[1 / 2 / 3 / 4 / 5 / h] >>> ")
+    print("Which log would you like to open? ")
+    print("#    Month         Type            Time          Date       ")
+    print("1    March         Restock         1 week        3/21 - 2/28")
+    print("2    February      Restock         5 days        2/14 - 2/19")
+    print("3    March         Restock         1 month       2/28 - 4/01")
+    print("4    March         Activity        1 month       2/28 - 4/01")
+    print("\nC-- custom     H-- help")
+    log = input("[1/2/3/4/c/h] >>> ")
 
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
@@ -54,7 +49,7 @@ try:
 
     elif log == "custom" or log == "5" or log == "c":
         file_choice = input("\nEnter file name :: ")
-        with open('file_choice', 'r', encoding=en) as file:
+        with open(file_choice, 'r', encoding=en) as file:
             txt = file.read()
 
     else:
@@ -73,7 +68,8 @@ try:
     
     # Choose vending/shop/both
     if log != "4": 
-        restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+        print("\nShow restocks for what? ")
+        restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
     # elif log != "timemarch": 
     #     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
     # elif log != "tm": 
@@ -172,6 +168,7 @@ try:
             sort_dict(index, pretty)
 
     def print_style(index):
+        print("\nPrint what data? ")
         print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
         if print_choice == "1":
@@ -272,7 +269,8 @@ try:
 
         exit()
 
-    time_spent()
+    if log == "4":
+        time_spent()
     # Restock counting functions for different types
     restock_count("1", "shop", "s", rmsg + "one item in the shop!")
     restock_count("2", "vending", "v", rmsg + "a vending machine!")
