@@ -16,26 +16,49 @@ print("Note: only '4' input is supported for time")
 # Try/Except statement for keyboard interrupt 
 try:
     global log
-    log = input("Which log? [m/f/m2/time] :: ")
+    # Which file the user will read
+    print("Which log would you like to open? [1/2/3/4/5] :: ")
+
+    print(" Month           Type            Time          Date       ")
+    print(" > March         Restock         1 week        3/21 - 2/28")
+    print(" > February      Restock         5 days        2/14 - 2/19")
+    print(" > March         Restock         1 month       2/28 - 4/01")
+    print(" > March         Activity        1 month       2/28 - 4/01")
+    print("\n")
+    print("Custom input     -->     5")
+    print("Help             -->     help")  
+    print("*Note: Lower bound is inclusive, upper is exclusive")
+    log = input("[1/2/3/4/5/h] >>> ")
+
+    # Encoding type for the file opens, utf8 for compatability
+    en = 'utf8'
 
     # March logs input
     if log == "mar" or log == "1" or log == "m1":
-        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding='utf8') as file:
+        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding=en) as file:
             txt = file.read()
 
     # February logs input
     elif log == "feb" or log == "2" or log == "f":
-        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r', encoding='utf8') as file:
+        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r', encoding=en) as file:
             txt = file.read()
 
     # Complete March logs input
     elif log == "mar2" or log == "3" or log == "m2":
-        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r', encoding='utf8') as file:
-                txt = file.read()
+        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r', encoding=en) as file:
+            txt = file.read()
 
     elif log == "timemarch" or log == "4" or log == "tm":
-        with open('activity-logs-2021-02-28-to-2021-04-01.txt', 'r', encoding='utf8') as file:
+        with open('activity-logs-2021-02-28-to-2021-04-01.txt', 'r', encoding=en) as file:
             txt = file.read()
+
+    elif log == "custom" or log == "5" or log == "c":
+        file_choice = input("\nEnter file name :: ")
+        with open('file_choice', 'r', encoding=en) as file:
+            txt = file.read()
+
+    else:
+        print("Not a valid log input :/")
 
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
