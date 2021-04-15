@@ -12,13 +12,12 @@ import datetime
 # TODO: add total restocks
 # TODO: add command support
 
-print("Note: only '4' input is supported for time")
 # Try/Except statement for keyboard interrupt 
 try:
     global log
     # Which file the user will read
-    print("Which log would you like to open? [1/2/3/4/5] :: ")
-
+    print("Which log would you like to open? ::: ")
+    print("\n")
     print(" Month           Type            Time          Date       ")
     print(" > March         Restock         1 week        3/21 - 2/28")
     print(" > February      Restock         5 days        2/14 - 2/19")
@@ -28,7 +27,7 @@ try:
     print("Custom input     -->     5")
     print("Help             -->     help")  
     print("*Note: Lower bound is inclusive, upper is exclusive")
-    log = input("[1/2/3/4/5/h] >>> ")
+    log = input("[1 / 2 / 3 / 4 / 5 / h] >>> ")
 
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
