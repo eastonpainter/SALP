@@ -239,7 +239,6 @@ try:
             return "%02i:%02i:%02i" % (hours, minutes, seconds)
 
         total_secs = list(indexed.values())
-        for i in range(len(total_secs)):
             total_secs[i] = secs_to_hms(total_secs[i])
             
         # Completed dict with names and total times
