@@ -11,6 +11,7 @@ import datetime
 # TODO: finish GUI
 # TODO: add total restocks
 # TODO: add command support
+# TODO: organize ++ improve functions
 
 # Try/Except statement for keyboard interrupt 
 try:
@@ -24,7 +25,6 @@ try:
     print("4    March         Activity        1 month       2/28 - 4/01")
     print("\nC-- custom     H-- help")
     log = input("[1/2/3/4/c/h] >>> ")
-
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
 
@@ -57,23 +57,21 @@ try:
 
     # Untruncates numpy array output
     np.set_printoptions(threshold=sys.maxsize)
+
     # Indexed dict containing all usernames and occurences of said usernames
     indexed = {}
+
     # Restocks array without excess
     restockers = np.array([])
     active_users = np.array([])
     time_logged = np.array([])
     secs_logged = np.array([])
-
     
     # Choose vending/shop/both
     if log != "4": 
         print("\nShow restocks for what? ")
         restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
-    # elif log != "timemarch": 
-    #     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
-    # elif log != "tm": 
-    #     restock_choice = input("Shop // Vending // Turret // All [1/2/3/4] :: ")
+
     rmsg = " has just restocked "
 
     # Finds maximum key of inputted dictionary and outputs it with username
@@ -216,11 +214,7 @@ try:
         for i in datalen:
             secs_logged = np.append(secs_logged, get_sec(time_logged[i]))
         
-        # user_times_secs = dict(zip(active_users, secs_logged))
-        # print(user_times_secs)
-        # user_times = dict(zip(active_users, time_logged))
-        # print(user_times)
-        # print("\n\n" + str(len(user_times_secs)) + "\n" + str(len(user_times)))
+        user_times_secs = dict(zip(active_users, secs_logged))
 
         # Makes a list of unique users in the dict, indexed
         for i in datalen:
@@ -230,23 +224,12 @@ try:
         # Array of unique users for easy access
         uni_users = list(indexed.keys())
         
-        # print(len(lines_arr))
-        # print(str(len(active_users)) + "\n")
-        # print(uni_users) 
-        # print(indexed)
-        # print("\n\nNumber of active users in march: " + str(len(indexed)))
-        
         # Pseudocode for time parser
         for i in range(len(uni_users)):
             user = uni_users[i]
             for j in datalen:
                 if active_users[j] == user:
                     indexed[user] += int(secs_logged[j])
-
-        # print(indexed)
-        # print("\n\n")
-        # print("Len of unique users: " + str(len(uni_users)))
-        # print("Len of uniqe users AND their total time (in seconds): " + str(len(indexed)))
 
         def secs_to_hms(seconds):
             hours = seconds // (60*60)
@@ -255,13 +238,10 @@ try:
             seconds %= 60
             return "%02i:%02i:%02i" % (hours, minutes, seconds)
 
-        # str(datetime.timedelta(seconds=666))
         total_secs = list(indexed.values())
         for i in range(len(total_secs)):
-            # print(i)
             total_secs[i] = secs_to_hms(total_secs[i])
             
-
         # Completed dict with names and total times
         final = dict(zip(uni_users, total_secs))
 
@@ -271,6 +251,7 @@ try:
 
     if log == "4":
         time_spent()
+
     # Restock counting functions for different types
     restock_count("1", "shop", "s", rmsg + "one item in the shop!")
     restock_count("2", "vending", "v", rmsg + "a vending machine!")
