@@ -64,7 +64,6 @@ def options_print():
 def file_picker(log):
     # User input to choose the log
     log = input("[1/2/3/4/c/h] >>> ")
-
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
 
@@ -112,16 +111,14 @@ def max_key(dict1):
         if list(dict1.values())[i] > max1:
             max1 = list(dict1.values())[i]
             user = list(dict1)[i]
+    return user, max1 
 
-    print(user + " ::  " + str(max1))
-
-def sort_dict(indexes, pretty):
-    # Length of inputted dictionary for iteration
-    dict_len = len(indexes)
+def sort_dict(indexes):
     # Final dictionary for all sorted values
     sorted_dict = {}
     # Sorts the keys by their value
     sorted_keys = sorted(indexes, key=indexes.get)
+    print(sorted_keys)
 
     # Sorts the keys by their value, then put the values to their keys
     # Sets each value and key equal to the keys of the indexes
@@ -140,7 +137,7 @@ def sort_dict(indexes, pretty):
 
     elif pretty == 'y':
         # Pos if adds a zero to non-three-digit numbers
-        for i in range(dict_len):
+        for i in range(len(indexes)):
             if i+1 < 10:
                 pos = "00" + str(i+1)
             elif i+1 < 100:
@@ -148,14 +145,13 @@ def sort_dict(indexes, pretty):
             else:
                 pos = str(i+1)
 
-            print(pos + "-  " + str(rev_keys[i]) + " ::: " + str(rev_vals[i]))
+            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
 
     elif pretty == 'd':
-        print(indexes)
-
+        print(indexes) 
     elif pretty == 'csv':
         print("", file=open("output.csv", "w"))
-        for i in range(dict_len):
+        for i in range(len(indexes)):
             print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
     else:
