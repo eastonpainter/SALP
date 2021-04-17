@@ -10,17 +10,15 @@ np.set_printoptions(threshold=sys.maxsize)
 def sort_dict(dict1):
     sorted_dict = {}
     sorted_keys = sorted(dict1, key=dict1.get)
-    print(sorted_keys)
 
     for i in sorted_keys:
        sorted_dict[i] = dict1[i]
-
     return sorted_dict
 
 def pretty_print(dict1):
     sorted_dict = sort_dict(dict1)
-    keys = list(dict1.keys())
-    vals = list(dict1.values())
+    keys = list(sorted_dict.keys())
+    vals = list(sorted_dict.values())
     max_len = len(keys[0])
 
     for j in range(len(sorted_dict)):
