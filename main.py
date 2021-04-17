@@ -116,7 +116,7 @@ def max_key(dict1):
     print(user + " ::  " + str(max1))
 
 def sort_dict(indexes, pretty):
-    # Lenght of inputted dictionary for iteration
+    # Length of inputted dictionary for iteration
     dict_len = len(indexes)
     # Final dictionary for all sorted values
     sorted_dict = {}
@@ -179,7 +179,7 @@ def restock_count(num, word, char, text):
 
         # Indexes values by restock amount
         for i in range(len(restockers)):
-            if (restockers[i] in indexed) != True:
+            if (restockers[i] not in indexed):
                 indexed[restockers[i]] = 1
             else:
                 indexed[restockers[i]] += 1
