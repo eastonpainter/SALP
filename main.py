@@ -1,7 +1,9 @@
 import re
 import numpy as np
-import sys
-import datetime
+from sys import maxsize
+from os import listdir
+from os import rename
+from shutil import copyfile
 # import march
 
 # User input for log choice
@@ -13,9 +15,24 @@ import datetime
 # TODO: add command support
 # TODO: organize ++ improve functions
 
-# Untruncates numpy array output
-np.set_printoptions(threshold=sys.maxsize)
+# Functions #
+#startup():
+#options_print():
+#file_picker(log, txt):
+#trim_file():
+#max_key(dict1):
+#sort_dict(indexes):
+#restock_count(num, word, char, text):
+#pretty_dict(index):
+#print_style(index):
+#get_sec(time_str):
+#time_spent():
+#secs_to_hms(seconds):
 
+# Untruncates numpy array output
+np.set_printoptions(threshold=maxsize)
+
+### Variables ###
 welcome = """
 *
 **
@@ -30,10 +47,11 @@ Welcome to...
     |____/_/   \_\_____|_|
 < ---------------------------------- >
 """
-
 bolds = '\033[1m'
 bolde = '\033[0m'
 log = ""
+txt = ""
+restock_message = " has just restocked "
 
 # Indexed dict containing all usernames and occurences of said usernames
 indexed = {}
@@ -45,6 +63,9 @@ restockers = np.array([])
 active_users = np.array([])
 time_logged = np.array([])
 secs_logged = np.array([])
+
+# Stage files contains all applicable files based on selected stage
+stage_files = []
 
 # Startup message
 def startup():
@@ -59,11 +80,45 @@ def options_print():
     print("2    February      Restock         5 days        2/14 - 2/19")
     print("3    March         Restock         1 month       2/28 - 4/01")
     print("4    March         Activity        1 month       2/28 - 4/01")
-    print("\nC-- custom     H-- help")
+    print("\nC-- custom     T-- trim    H-- help")
 
-def file_picker(log):
+def list_files():
+    all_files = []
+    curdir = listdir(path='.')
+
+    for curfile in curdir:
+        if ".txt" in curfile:
+            all_files.append(curfile)
+    return all_files
+
+def print_files(stage):
+    global stage_files
+    file_num = 1
+    txt_files = list_files()
+    if stage == "raw":
+        for txt_file in txt_files:
+            if "Logistics Department" in txt_file:
+                stage_files.append(txt_file)
+    
+    if stage == "verbose":
+        for txt_file in txt_files:
+            if "_verbose.txt" in txt_file:
+                stage_files.append(txt_file)
+
+    if stage == "trimmed":
+        for txt_file in txt_files:
+            if "_trimmed.txt" in txt_file:
+                stage_files.append(txt_file)
+
+    for txt_file in stage_files:
+        print("{}--     {}".format(file_num, txt_file))
+        file_num += 1
+        
+def file_picker():
+    global log
+    global txt
     # User input to choose the log
-    log = input("[1/2/3/4/c/h] >>> ")
+    log = input("[1/2/3/4/c/t/p/h] >>> ")
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
 
@@ -93,14 +148,60 @@ def file_picker(log):
         with open(file_choice, 'r', encoding=en) as file:
             txt = file.read()
 
+    # Trims files
+    elif log == "t":
+        file_num = 1
+        txt_files = list_files()
+
+        print("\nText files in current directory >> ")
+        # Prints and numbers the contents of txt_files
+        print_files("raw")
+        file_trim_choice = input("\nWhich file to trim? [#] :: ")
+        # Sets the file based on file choice
+        file_to_trim = txt_files[int(file_trim_choice) - 1]
+        # Copies file with _trimmed.txt as the ending
+        copied_file = file_to_trim[:-4] + "_trimmed.txt"
+
+        copyfile(file_to_trim, copied_file)
+        trim_file(copied_file)
+
+    elif log == "p":
+        # Retrieves all text files from curdir
+        txt_files = list_files()
+        print_files("raw")
+        file_choose = input("What file would you like to rename? :: ")
+        sel_file = stage_files[int(file_choose) - 1]
+        print(file_choose)
+        print(sel_file)
+        filename_prep(sel_file)
+
     # Print help message
     elif log == "h":
         options_print()
-        file_picker(log)
-
+        file_picker()
+    
     # Incorrect input
     else:
         print("Not a valid log input :/")
+
+def filename_prep(sel_file):
+    if "Logistics Department - Logs - " in sel_file:
+        log_type = re.findall("(restock|activity)", sel_file)
+        if log_type == "restock":
+            log_type = "restocks"
+        dates = re.findall("\d{4}-\d{2}-\d{2}", sel_file)
+        months = [dates[0][5:7], dates[1][5:7]] 
+        days = [dates[0][-2:], dates[1][-2:]] 
+        years = [dates[0][2:4], dates[1][2:4]]
+        verbose_name = "{}_{}_{}_{}_{}_{}_{}_verbose.txt".format(log_type[0], months[0], months[1], days[0], days[1], years[0], years[1])      
+        print("\n")
+        print(verbose_name)
+    else:
+        print("Not a valid file to rename! Maybe try to trim the file next?")
+    # Original file name: Logistics Department - Logs - restocks-logs [nums] (yyyy-mm-dd to yyyy-mm-dd).txt
+
+def trim_file():
+    exit()
 
 # Finds maximum key of inputted dictionary and outputs it with username
 def max_key(dict1):
@@ -131,35 +232,10 @@ def sort_dict(indexes):
 
     # Zips the two sorted arrays
     final = dict(zip(rev_keys, rev_vals))
-    
-    if pretty == 'n':
-        print(final)
-
-    elif pretty == 'y':
-        # Pos if adds a zero to non-three-digit numbers
-        for i in range(len(indexes)):
-            if i+1 < 10:
-                pos = "00" + str(i+1)
-            elif i+1 < 100:
-                pos = "0" + str(i+1)
-            else:
-                pos = str(i+1)
-
-            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
-
-    elif pretty == 'd':
-        print(indexes) 
-    elif pretty == 'csv':
-        print("", file=open("output.csv", "w"))
-        for i in range(len(indexes)):
-            print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
-
-    else:
-        print("Invalid argument for sort_dict()")
 
 # Function to count restocks of whatever is called
 # "num", "word", and "char" are used for user input, while "text" is the restock text
-def restock_count(num, word, char, text):
+def restock_count(num, text):
     global lines_arr
     global restockers
     global indexed 
@@ -183,13 +259,31 @@ def restock_count(num, word, char, text):
 def pretty_dict(index):
     pretty = input("Pretty? [y/n/d/csv] :: ")
     if pretty == 'y':
-        sort_dict(index, pretty)
+        sort_dict(index)
+        # Pos if adds a zero to non-three-digit numbers
+        for i in range(len(indexes)):
+            if i+1 < 10:
+                pos = "00" + str(i+1)
+            elif i+1 < 100:
+                pos = "0" + str(i+1)
+            else:
+                pos = str(i+1)
+
+            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
+
     elif pretty == 'n':
-        sort_dict(index, pretty)
+        sort_dict(index)
+        print(final)
+
     elif pretty == 'd':
-        sort_dict(index, pretty)
+        sort_dict(index)
+        print(indexes) 
+
     elif pretty == 'csv':
-        sort_dict(index, pretty)
+        sort_dict(index)
+        print("", file=open("output.csv", "w"))
+        for i in range(len(indexes)):
+            print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
 def print_style(index):
     print("\nPrint what data? ")
@@ -215,7 +309,6 @@ def get_sec(time_str):
     h, m, s = time_str.split(':')
     return int(int(h) * 3600 + int(m) * 60 + int(s))
 
-# Mayusachi's Session Time: 00h:17m:51s 
 def time_spent():
     global txt
     global active_users
@@ -278,31 +371,44 @@ def time_spent():
 
 # Try/Except statement for keyboard interrupt 
 try:
+#startup():
+#options_print():
+#file_picker():
+#trim_file():
+#max_key(dict1):
+#sort_dict(indexes):
+#restock_count(num, word, char, text):
+#pretty_dict(index):
+#print_style(index):
+#get_sec(time_str):
+#time_spent():
+#secs_to_hms(seconds):
+    txt_files = list_files()
     startup()
-    file_picker(log)
-    # Choose vending/shop/both
-#    restock()
-#    activity()
-    if log != "4": 
-        print("\nShow restocks for what? ")
-        restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
+    while True:
+        file_picker()
+        # Choose vending/shop/both
+        # restock()
+        # activity()
+        if log != "4": 
+            print("\nShow restocks for what? ")
+            restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
 
-    restock_message = " has just restocked "
+        # This path exits the program, if previous, it continues
+        if log == "4":
+            time_spent()
 
-    if log == "4":
-        time_spent()
+        # Restock counting functions for different types
+        restock_count("1", restock_message + "one item in the shop!")
+        restock_count("2", restock_message + "a vending machine!")
+        restock_count("3", restock_message + "a turret!")
 
-    # Restock counting functions for different types
-    restock_count("1", "shop", "s", restock_message + "one item in the shop!")
-    restock_count("2", "vending", "v", restock_message + "a vending machine!")
-    restock_count("3", "turret", "t", restock_message + "a turret!")
+        # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
+        # ...  "Len" prints the number of restocks in that time period
+        if log != "timemarch" or log != "4" or log != "tm": 
+            print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
-    # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
-    # ...  "Len" prints the number of restocks in that time period
-    if log != "timemarch" or log != "4" or log != "tm": 
-        print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
-
-    print_style(indexed)
+        print_style(indexed)
 
 except KeyboardInterrupt: 
     print("\n\nExiting program...\n")
