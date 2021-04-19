@@ -33,8 +33,7 @@ from shutil import copyfile
 np.set_printoptions(threshold=maxsize)
 
 ### Variables ###
-welcome = """
-*
+welcome = """*
 **
 ***
 ****
@@ -45,8 +44,7 @@ Welcome to...
     \___ \ / _ \ | |   | |_) |
      ___) / ___ \| |___|  __/
     |____/_/   \_\_____|_|
-< ---------------------------------- >
-"""
+< ---------------------------------- >"""
 bolds = '\033[1m'
 bolde = '\033[0m'
 log = ""
@@ -80,7 +78,7 @@ def options_print():
     print("2    February      Restock         5 days        2/14 - 2/19")
     print("3    March         Restock         1 month       2/28 - 4/01")
     print("4    March         Activity        1 month       2/28 - 4/01")
-    print("\nC-- custom     T-- trim    H-- help")
+    print("P-- print    R-- rename    T-- trim    H-- help")
 
 def list_files():
     all_files = []
@@ -91,39 +89,52 @@ def list_files():
             all_files.append(curfile)
     return all_files
 
+# Prints based on stage of the file
+# Called in print_files(stage)
+def print_options(print_type, must_contain, stage):
+    global txt_files
+    if stage == print_type:
+        for txt_file in txt_files:
+            if must_contain in txt_file:
+                stage_files.append(txt_file)
+
 def print_files(stage):
     global stage_files
     file_num = 1
     txt_files = list_files()
-    if stage == "raw":
-        for txt_file in txt_files:
-            if "Logistics Department" in txt_file:
-                stage_files.append(txt_file)
-    
-    if stage == "verbose":
-        for txt_file in txt_files:
-            if "_verbose.txt" in txt_file:
-                stage_files.append(txt_file)
 
-    if stage == "trimmed":
-        for txt_file in txt_files:
-            if "_trimmed.txt" in txt_file:
-                stage_files.append(txt_file)
+    print_options("raw", "Logistics Department - Logs -", stage)
+    print_options("verbose", "_verbose.txt", stage)
+    print_options("trimmed", "_trimmed.txt", stage)
 
-    for txt_file in stage_files:
-        print("{}--     {}".format(file_num, txt_file))
-        file_num += 1
-        
+    # Checks that the txt_files contains something
+    if len(txt_files) == 0:
+        print("\nNo applicable logs found :/")
+        pass
+    else:
+        print("\nFiles to rename >> ")
+        for txt_file in txt_files:
+            print("{}--     {}".format(file_num, txt_file))
+            file_num += 1
 def file_picker():
     global log
     global txt
     # User input to choose the log
-    log = input("[1/2/3/4/c/t/p/h] >>> ")
+    log = input("\n[p/r/t/c/h/q] >>> ")
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
+    
+    if log == "p":
+        print_files("trimmed")
+        edit_or_copy = input("Would you like to rename or copy the file? [r/c] :: ")
+        sel_file = 
+        if edit_or_copy == "r":
+            try:
+                file_to_trim = txt_files[int(file_trim_choice) - 1]
+                rename("")
 
     # March logs input
-    if log == "mar" or log == "1" or log == "m1":
+    elif log == "mar" or log == "1" or log == "m1":
         with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding=en) as file:
             txt = file.read()
 
@@ -144,19 +155,22 @@ def file_picker():
 
     # Custom file selection
     elif log == "c":
-        file_choice = input("\nEnter file name :: ")
-        with open(file_choice, 'r', encoding=en) as file:
-            txt = file.read()
+        file_choice = input("Enter file name :: ")
+        try:
+            with open(file_choice, 'r', encoding=en) as file:
+                txt = file.read()
+        except:
+            print("\nError! Something went wrong :/")
 
     # Trims files
     elif log == "t":
         file_num = 1
         txt_files = list_files()
 
-        print("\nText files in current directory >> ")
+        print("Text files in current directory >> ")
         # Prints and numbers the contents of txt_files
         print_files("raw")
-        file_trim_choice = input("\nWhich file to trim? [#] :: ")
+        file_trim_choice = input("Which file to trim? [#] :: ")
         # Sets the file based on file choice
         file_to_trim = txt_files[int(file_trim_choice) - 1]
         # Copies file with _trimmed.txt as the ending
@@ -165,24 +179,32 @@ def file_picker():
         copyfile(file_to_trim, copied_file)
         trim_file(copied_file)
 
-    elif log == "p":
+    elif log == "r":
         # Retrieves all text files from curdir
         txt_files = list_files()
+        # Prints all files, if none, escape
         print_files("raw")
-        file_choose = input("What file would you like to rename? :: ")
-        sel_file = stage_files[int(file_choose) - 1]
-        print(file_choose)
-        print(sel_file)
-        filename_prep(sel_file)
+        if len(txt_files) == 0:
+            pass
+        else:
+            file_choose = input("\nWhat file would you like to rename? :: ")
+            sel_file = stage_files[int(file_choose) - 1]
+            print(file_choose)
+            print(sel_file)
+            filename_prep(sel_file)
 
     # Print help message
     elif log == "h":
         options_print()
         file_picker()
     
+    elif log == "q":
+        print("\nExiting program...")
+        exit()
+
     # Incorrect input
     else:
-        print("Not a valid log input :/")
+        print("\nNot a valid log input :/")
 
 def filename_prep(sel_file):
     if "Logistics Department - Logs - " in sel_file:
@@ -194,8 +216,6 @@ def filename_prep(sel_file):
         days = [dates[0][-2:], dates[1][-2:]] 
         years = [dates[0][2:4], dates[1][2:4]]
         verbose_name = "{}_{}_{}_{}_{}_{}_{}_verbose.txt".format(log_type[0], months[0], months[1], days[0], days[1], years[0], years[1])      
-        print("\n")
-        print(verbose_name)
     else:
         print("Not a valid file to rename! Maybe try to trim the file next?")
     # Original file name: Logistics Department - Logs - restocks-logs [nums] (yyyy-mm-dd to yyyy-mm-dd).txt
@@ -243,10 +263,10 @@ def restock_count(num, text):
 
     if restock_choice == num or restock_choice == word or restock_choice == char or restock_choice == "4":
         # Sets lines_arr equal to all restock notifs in the text
-        lines_arr = np.array(re.findall("\n.+" + text + "\n", txt))
+        lines_arr = np.array(re.findall(".+" + text + "", txt))
         # Trims the newline and the excess text from lines_arr and moves it to restockers
         for i in range(len(lines_arr)):
-            restockers = np.append(restockers, re.sub("\n", "", lines_arr[i])) 
+            restockers = np.append(restockers, re.sub("", "", lines_arr[i])) 
             np.put(restockers, i, re.sub(text, "", restockers[i]))
 
         # Indexes values by restock amount
@@ -286,7 +306,7 @@ def pretty_dict(index):
             print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
 def print_style(index):
-    print("\nPrint what data? ")
+    print("Print what data? ")
     print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
 
     if print_choice == "1":
@@ -302,7 +322,7 @@ def print_style(index):
         max_key(index)
 
     else:
-        print("\nInvalid input\n")
+        print("Invalid input")
 
 def get_sec(time_str):
     time_str = re.sub("[hms]", "", time_str)
@@ -316,17 +336,17 @@ def time_spent():
     global secs_logged
 
     # Sets lines_arr equal to all lines containing session time
-    lines_arr = np.array(re.findall("\n.+'s Session Time: \d{2}h:\d{2}m:\d{2}s\n", txt))
+    lines_arr = np.array(re.findall(".+'s Session Time: \d{2}h:\d{2}m:\d{2}s", txt))
     datalen = range(len(lines_arr))
 
     # Creates an array with all the users who logged time in the text
     for i in datalen:
-        active_users = np.append(active_users, re.sub("\n", "", lines_arr[i])) 
+        active_users = np.append(active_users, re.sub("", "", lines_arr[i])) 
         np.put(active_users, i, re.sub("'s Session Time.+$", "", active_users[i]))
     
     # Makes an array of all logged times in hh:mm:ss
     for i in datalen:
-        time_logged = np.append(time_logged, re.sub("\n", "", lines_arr[i])) 
+        time_logged = np.append(time_logged, re.sub("", "", lines_arr[i])) 
         np.put(time_logged, i, re.sub(".+'s Session Time: ", "",  time_logged[i]))
 
     # Makes an array of all logged times in seconds
@@ -390,25 +410,24 @@ try:
         # Choose vending/shop/both
         # restock()
         # activity()
-        if log != "4": 
-            print("\nShow restocks for what? ")
+        if log == "1" or log == "2" or log == "3": 
+            print("Show restocks for what? ")
             restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
+
+            restock_count("1", restock_message + "one item in the shop!")
+            restock_count("2", restock_message + "a vending machine!")
+            restock_count("3", restock_message + "a turret!")
+
+            # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
+            # ...  "Len" prints the number of restocks in that time period
+            print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+
+            # Restock counting functions for different types
+            print_style(indexed)
 
         # This path exits the program, if previous, it continues
         if log == "4":
             time_spent()
 
-        # Restock counting functions for different types
-        restock_count("1", restock_message + "one item in the shop!")
-        restock_count("2", restock_message + "a vending machine!")
-        restock_count("3", restock_message + "a turret!")
-
-        # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
-        # ...  "Len" prints the number of restocks in that time period
-        if log != "timemarch" or log != "4" or log != "tm": 
-            print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
-
-        print_style(indexed)
-
 except KeyboardInterrupt: 
-    print("\n\nExiting program...\n")
+    print("\nExiting program...")
