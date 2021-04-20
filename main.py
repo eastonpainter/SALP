@@ -4,6 +4,7 @@ from sys import maxsize
 from os import listdir
 from os import rename
 from shutil import copyfile
+from massedit import edit_files
 # import march
 
 # User input for log choice
@@ -51,6 +52,10 @@ log = ""
 txt = ""
 restock_message = " has just restocked "
 
+shop_txt = "has just restocked one item in the shop!"
+vending_txt = "has just restocked a vending machine!"
+turret_txt = "has just restocked a turret!"
+
 # Indexed dict containing all usernames and occurences of said usernames
 indexed = {}
 
@@ -64,6 +69,19 @@ secs_logged = np.array([])
 
 # Stage files contains all applicable files based on selected stage
 stage_files = []
+
+def list_files():
+    all_files = []
+    curdir = listdir(path='.')
+
+    for curfile in curdir:
+        if ".txt" in curfile:
+            all_files.append(curfile)
+    return all_files
+
+txt_files = list_files()
+
+### Functions ### 
 
 # Startup message
 def startup():
@@ -80,15 +98,6 @@ def options_print():
     print("4    March         Activity        1 month       2/28 - 4/01")
     print("P-- print    R-- rename    T-- trim    H-- help")
 
-def list_files():
-    all_files = []
-    curdir = listdir(path='.')
-
-    for curfile in curdir:
-        if ".txt" in curfile:
-            all_files.append(curfile)
-    return all_files
-
 # Prints based on stage of the file
 # Called in print_files(stage)
 def print_options(print_type, must_contain):
@@ -100,58 +109,60 @@ def print_options(print_type, must_contain):
 def print_files(stage):
     global stage_files
     file_num = 1
-    txt_files = list_files()
-
+    
     if stage == "raw":  
-        print_options(stage, "Logistics Department - Logs -")
+        for txt_file in txt_files:
+            if "Logistics Department - Logs -" in txt_file:
+                stage_files.append(txt_file)
     elif stage == "verbose":  
-        print_options(stage, "_verbose.txt")
+        for txt_file in txt_files:
+            if "_verbose.txt" in txt_file:
+                stage_files.append(txt_file)
     elif stage == "trimmed":  
-        print_options(stage, "_trimmed.txt")
+        for txt_file in txt_files:
+            if "_trimmed.txt" in txt_file:
+                stage_files.append(txt_file)
 
     # Checks that the txt_files contains something
     if len(txt_files) == 0:
         print("\nNo applicable logs found :/")
         pass
     else:
-        print("\nFiles to rename >> ")
-        for txt_file in txt_files:
-            print("{}--     {}".format(file_num, txt_file))
+        for txt_file in stage_files:
+            print("{}{}{}--     {}".format(bolds, file_num, bolde, txt_file))
             file_num += 1
+
 def file_picker():
     global log
     global txt
     # User input to choose the log
-    log = input("\n[p/r/t/c/h/q] >>> ")
+    log = input("\n[[p/r/t/c/h/q]] >>> ")
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
     
     if log == "p":
+        print("\nFiles to parse >> ")
         print_files("trimmed")
+        file_choice = input("\nWhich file to parse? >> ")
+        restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
+        if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
+            if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
+                print("Invalid restock type :/")
+            else:
+                # Sets the file based on file choice
+                file_to_trim = txt_files[int(file_choice) - 1]
+                restock_count(file_to_trim, restock_type)
+        else:
+            print("\nInvalid file choice :/")
 
     # March logs input
-    elif log == "mar" or log == "1" or log == "m1":
-        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding=en) as file:
-            txt = file.read()
-
-    # February logs input
-    elif log == "2":
-        with open('restock-logs2021-02-14-to-2021-02-19.txt', 'r', encoding=en) as file:
-            txt = file.read()
-
-    # Complete March logs input
-    elif log == "3":
-        with open('restock-logs2021-02-28-to-2021-04-01.txt', 'r', encoding=en) as file:
-            txt = file.read()
-
-    # Complete March time logs
-    elif log == "4":
-        with open('activity-logs-2021-02-28-to-2021-04-01.txt', 'r', encoding=en) as file:
-            txt = file.read()
+#    elif log == "mar" or log == "1" or log == "m1":
+#        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding=en) as file:
+#            txt = file.read()
 
     # Custom file selection
     elif log == "c":
-        file_choice = input("Enter file name :: ")
+        file_choice = input("Enter file name >> ")
         try:
             with open(file_choice, 'r', encoding=en) as file:
                 txt = file.read()
@@ -161,31 +172,47 @@ def file_picker():
     # Trims files
     elif log == "t":
         file_num = 1
-        txt_files = list_files()
-
         print("Text files in current directory >> ")
         # Prints and numbers the contents of txt_files
-        print_files("raw")
-        file_trim_choice = input("Which file to trim? [#] :: ")
-        # Sets the file based on file choice
-        file_to_trim = txt_files[int(file_trim_choice) - 1]
-        # Copies file with _trimmed.txt as the ending
-        copied_file = file_to_trim[:-4] + "_trimmed.txt"
+        print_files("verbose")
+        if len(txt_files) == 0 or len(stage_files) == 0:
+            print("\nNo applicable files found :/")
+        else:
+            file_trim_choice = input("Which file to trim? [#] >> ")
 
-        copyfile(file_to_trim, copied_file)
-        trim_file(copied_file)
-
+            rename_copy = input("\nRename or make a copy? [r/c] >> ")
+            # Verifies that the choice was not greater than the max and not smaller than one
+            if int(file_trim_choice) > len(stage_files) or int(file_trim_choice) < 1:
+                print("\nCannot select file-- out of range.")
+            else:
+                # Selected file based on the available files and user input
+                sel_file = stage_files[int(file_trim_choice) - 1]
+                # Copies file with _trimmed.txt as the ending
+                new_filename = sel_file[:-12] + "_trimmed.txt"
+                # Renames the selected file to the verbose name generated by filenameprep()
+                if rename_copy == "r":            
+                    rename(sel_file, new_filename)
+                    print("\n > File successfully renamed!")
+                    print(" > New file's name: " + new_filename)
+                elif rename_copy == "c":
+                    copyfile(sel_file, new_filename)
+                    print("\n > File successfully copied!")
+                    print(" > New file's name: " + new_filename)
+                else:
+                    print("Not a valid option :/")
+                trim_file(new_filename, "restock")
+#            except Exception as error:
+#                print(error)
     elif log == "r":
         # Retrieves all text files from curdir
-        txt_files = list_files()
-        print(txt_files)
+        
         # Prints all files, if none, escape
         print_files("raw")
         if len(txt_files) == 0:
             pass
         else:
-            file_choose = input("\nWhat file would you like to rename/copy? :: ")
-            rename_copy = input("\nRename or make a copy? [r/c] :: ")
+            file_choose = input("\nWhat file would you like to rename/copy? >> ")
+            rename_copy = input("\nRename or make a copy? [r/c] >> ")
             try:
                 if int(file_choose) > len(txt_files) and int(file_choose) > 0:
                     print("\nCannot select file; out of range.")
@@ -195,10 +222,10 @@ def file_picker():
                     # Renames the selected file to the verbose name generated by filenameprep()
                     if rename_copy == "r":            
                         rename(sel_file, verbose_name)
-                        print("\nFile successfully copied!")
+                        print("\nFile successfully renamed!")
                     elif rename_copy == "c":
                         copyfile(sel_file, verbose_name)
-                        print("\nFile successfully rename!")
+                        print("\nFile successfully copied!")
                     else:
                         print("Not a valid option :/")
             except:
@@ -210,7 +237,7 @@ def file_picker():
         file_picker()
     
     elif log == "q":
-        print("\nExiting program...")
+        print("\nExiting program...\n")
         exit()
 
     # Incorrect input
@@ -232,14 +259,38 @@ def filename_prep(sel_file):
         print("Not a valid file to rename! Maybe try to trim the file next?")
     # Original file name: Logistics Department - Logs - restocks-logs [nums] (yyyy-mm-dd to yyyy-mm-dd).txt
 
-def trim_file():
-    exit()
+# Parameter verbosef: verbose file
+# Trims extraneous lines from a log
+def trim_file(verbosef, filetype):
+    shop = "has just restocked one item in the shop!"
+    vending = "has just restocked a vending machine!"
+    turret = "has just restocked a turret!"
+
+    if filetype == "restock":
+        with open(verbosef, "r") as f:
+            lines = f.readlines()
+        with open(verbosef, "w") as f:
+            for line in lines:
+#                print(line.strip("\n"))
+                if shop in line.strip("\n") or vending in line.strip("\n") or turret in line.strip("\n"): 
+                    f.write(line)
+
+#        edit_files(verbosef, ["re.sub('has just restocked one item in the shop!', 'shop', line)"])
+#        edit_files(verbosef, ["re.sub('has just restocked a vending machine!', 'vending', line)"])
+#        edit_files(verbosef, ["re.sub('has just restocked a turret!', 'turret', line)"])
+
+        print(" > File trimmed successfully!")
+
+    elif filetype == "activity":
+        print("Currently unsupported")
+    else:
+        print("Invalid option")
 
 # Finds maximum key of inputted dictionary and outputs it with username
 def max_key(dict1):
     max1 = list(indexed.values())[0]
     user = ''
-    # What is this? Lisp
+    # What is this? Lisp?
     for i in range(len(list(dict1.values()))):
         if list(dict1.values())[i] > max1:
             max1 = list(dict1.values())[i]
@@ -267,29 +318,50 @@ def sort_dict(indexes):
 
 # Function to count restocks of whatever is called
 # "num", "word", and "char" are used for user input, while "text" is the restock text
-def restock_count(num, text):
-    global lines_arr
-    global restockers
+def restock_count(log, restock_type):
     global indexed 
-    global txt 
+    global restockers
+    inverse_restocks = []
 
-    if restock_choice == num or restock_choice == word or restock_choice == char or restock_choice == "4":
-        # Sets lines_arr equal to all restock notifs in the text
-        lines_arr = np.array(re.findall(".+" + text + "", txt))
-        # Trims the newline and the excess text from lines_arr and moves it to restockers
-        for i in range(len(lines_arr)):
-            restockers = np.append(restockers, re.sub("", "", lines_arr[i])) 
-            np.put(restockers, i, re.sub(text, "", restockers[i]))
+    # Sets restock_lines equal to all restock notifs in the text
+    with open(log) as f:
+        restock_lines = []
+        for line in f:
+            restock_lines.append(line.strip("\n"))
 
-        # Indexes values by restock amount
-        for i in range(len(restockers)):
-            if (restockers[i] not in indexed):
-                indexed[restockers[i]] = 1
-            else:
-                indexed[restockers[i]] += 1
+    if restock_type == "s":
+        text = shop_txt
+        inverse_restocks.append("vending") 
+        inverse_restocks.append("turret")
+    elif restock_type == "v":
+        text = vending_txt
+        inverse_restocks.append("shop") 
+        inverse_restocks.append("turret") 
+    elif restock_type == "t":
+        text = turret_txt
+        inverse_restocks.append("shop") 
+        inverse_restocks.append("vending") 
+    else:
+        print("Invalid restock type")
+        exit()
+        
+    for restock in restock_lines:
+        if inverse_restocks[0] in restock or inverse_restocks[1] in restock:
+            restock_lines.pop(i)
+    # Trims the newline and the excess text from restock_lines and moves it to restockers
+    for i in range(len(restock_lines)):
+        restockers = np.append(restockers, re.sub(" " + text, "", restock_lines[i])) 
+
+    print(restockers)
+    # Indexes values by restock amount
+    for i in range(len(restockers)):
+        if (restockers[i] not in indexed):
+            indexed[restockers[i]] = 1
+        else:
+            indexed[restockers[i]] += 1
 
 def pretty_dict(index):
-    pretty = input("Pretty? [y/n/d/csv] :: ")
+    pretty = input("Pretty? [y/n/d/csv] >> ")
     if pretty == 'y':
         sort_dict(index)
         # Pos if adds a zero to non-three-digit numbers
@@ -319,7 +391,7 @@ def pretty_dict(index):
 
 def print_style(index):
     print("Print what data? ")
-    print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+    print_choice = input("Indexes // Print // Len // Max [1/2/3/4] >> ")
 
     if print_choice == "1":
         pretty_dict(index)
@@ -415,7 +487,6 @@ try:
 #get_sec(time_str):
 #time_spent():
 #secs_to_hms(seconds):
-    txt_files = list_files()
     startup()
     while True:
         file_picker()
@@ -424,7 +495,7 @@ try:
         # activity()
         if log == "1" or log == "2" or log == "3": 
             print("Show restocks for what? ")
-            restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] :: ")
+            restock_choice = input("Shop / Vending / Turret / All [1/2/3/4] >> ")
 
             restock_count("1", restock_message + "one item in the shop!")
             restock_count("2", restock_message + "a vending machine!")
@@ -432,7 +503,7 @@ try:
 
             # "Indexes" prints amounts of restocks, "Print" prints all names in order of occurence ... 
             # ...  "Len" prints the number of restocks in that time period
-            print_choice = input("Indexes // Print // Len // Max [1/2/3/4] :: ")
+            print_choice = input("Indexes // Print // Len // Max [1/2/3/4] >> ")
 
             # Restock counting functions for different types
             print_style(indexed)
