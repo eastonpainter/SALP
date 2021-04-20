@@ -5,6 +5,7 @@ from os import listdir
 from os import rename
 from shutil import copyfile
 from massedit import edit_files
+from time import sleep
 # import march
 
 # User input for log choice
@@ -141,19 +142,22 @@ def file_picker():
     en = 'utf8'
     
     if log == "p":
-        print("\nFiles to parse >> ")
         print_files("trimmed")
-        file_choice = input("\nWhich file to parse? >> ")
-        restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
-        if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
-            if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
-                print("Invalid restock type :/")
-            else:
-                # Sets the file based on file choice
-                file_to_trim = txt_files[int(file_choice) - 1]
-                restock_count(file_to_trim, restock_type)
+        if len(stage_files) == 0:
+            print("\n > No files found :/")
         else:
-            print("\nInvalid file choice :/")
+            print("\nFiles to parse >> ")
+            file_choice = input("\nWhich file to parse? >> ")
+            restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
+            if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
+                if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
+                    print("Invalid restock type :/")
+                else:
+                    # Sets the file based on file choice
+                    file_to_trim = txt_files[int(file_choice) - 1]
+                    restock_count(file_to_trim, restock_type)
+            else:
+                print("\nInvalid file choice :/")
 
     # March logs input
 #    elif log == "mar" or log == "1" or log == "m1":
@@ -172,13 +176,13 @@ def file_picker():
     # Trims files
     elif log == "t":
         file_num = 1
-        print("Text files in current directory >> ")
+        print("Text files in current directory >> \n")
         # Prints and numbers the contents of txt_files
         print_files("verbose")
         if len(txt_files) == 0 or len(stage_files) == 0:
             print("\nNo applicable files found :/")
         else:
-            file_trim_choice = input("Which file to trim? [#] >> ")
+            file_trim_choice = input("\nWhich file to trim? [#] >> ")
 
             rename_copy = input("\nRename or make a copy? [r/c] >> ")
             # Verifies that the choice was not greater than the max and not smaller than one
@@ -265,22 +269,28 @@ def trim_file(verbosef, filetype):
     shop = "has just restocked one item in the shop!"
     vending = "has just restocked a vending machine!"
     turret = "has just restocked a turret!"
-
     if filetype == "restock":
         with open(verbosef, "r") as f:
             lines = f.readlines()
         with open(verbosef, "w") as f:
             for line in lines:
-#                print(line.strip("\n"))
                 if shop in line.strip("\n") or vending in line.strip("\n") or turret in line.strip("\n"): 
-                    f.write(line)
-
-#        edit_files(verbosef, ["re.sub('has just restocked one item in the shop!', 'shop', line)"])
-#        edit_files(verbosef, ["re.sub('has just restocked a vending machine!', 'vending', line)"])
-#        edit_files(verbosef, ["re.sub('has just restocked a turret!', 'turret', line)"])
-
+        with open(verbosef, "r") as f:
+            lines = f.readlines()
+        with open(verbosef, "w") as f:
+            for line in lines:
+                username = line.split(" ", 1)[0]
+                print(username)
+                restock_text = line.split(" ", 1)[1]
+                print(restock_text)
+                if "shop!" in restock_text:
+                    restock_text = " shop\n"
+                elif "vending" in restock_text:
+                    restock_text = " vending\n"
+                elif "turret!" in restock_text:
+                    restock_text = " turret\n"
+                f.write(username + restock_text)
         print(" > File trimmed successfully!")
-
     elif filetype == "activity":
         print("Currently unsupported")
     else:
