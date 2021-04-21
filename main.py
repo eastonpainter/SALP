@@ -386,7 +386,7 @@ def restock_count(log, restock_type):
     elif restock_type == "t":
         restock_add(restock_type, "t")
 
-    print(indexed)
+    pretty_dict(indexed)
 
 def restock_add(restock_type, lookfor):
     # Indexes values by restock amount
