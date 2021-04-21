@@ -48,6 +48,9 @@ Welcome to...
 < ---------------------------------- >"""
 bolds = '\033[1m'
 bolde = '\033[0m'
+
+# Encoding type for the file opens, utf8 for compatability
+en = 'utf8'
 log = ""
 txt = ""
 restock_message = " has just restocked "
@@ -103,12 +106,12 @@ def options_print():
 # Prints based on stage of the file
 # Called in print_files(stage)
 def print_options(print_type, must_contain):
-    global txt_files
     for txt_file in txt_files:
         if must_contain in txt_file:
             stage_files.append(txt_file)
 
 def print_files(stage):
+    txt_files = list_files()
     global stage_files
     file_num = 1
     
@@ -141,8 +144,6 @@ def file_picker():
 
     stage_files = []
     log = input("\n[[p/r/t/c/h/q]] >>> ")
-    # Encoding type for the file opens, utf8 for compatability
-    en = 'utf8'
     
     if log == "p":
         print("\nFiles to parse >> ")
@@ -281,17 +282,17 @@ def trim_file(verbosef):
     vending = "has just restocked a vending machine!"
     turret = "has just restocked a turret!"
     if verbosef[:8] == "restocks":
-        with open(verbosef, "r") as f:
+        with open(verbosef, "r", encoding=en) as f:
             lines = f.readlines()
-        with open(verbosef, "w") as f:
+        with open(verbosef, "w", encoding=en) as f:
             for line in lines:
                 if shop in line.strip("\n") or vending in line.strip("\n") or turret in line.strip("\n"): 
                     f.write(line)
 
         # Second go-around, replacing verbose restock message with truncated one
-        with open(verbosef, "r") as f:
+        with open(verbosef, "r", encoding=en) as f:
             lines = f.readlines()
-        with open(verbosef, "w") as f:
+        with open(verbosef, "w", encoding=en) as f:
             for line in lines:
                 username = line.split(" ", 1)[0]
                 restock_text = line.split(" ", 1)[1]
@@ -305,9 +306,9 @@ def trim_file(verbosef):
         print(" > File trimmed successfully!")
 
     elif verbosef[:8] == "activity":
-        with open(verbosef, "r") as f:
+        with open(verbosef, "r", encoding=en) as f:
             lines = f.readlines()
-        with open(verbosef, "w") as f:
+        with open(verbosef, "w", encoding=en) as f:
             for line in lines:
                 if "'s Session Time: " in line.strip("\n"): 
                     if "> " not in line:
@@ -317,9 +318,9 @@ def trim_file(verbosef):
                         f.write(line)
         
         # Second go-around, trimming and converting time to secs
-        with open(verbosef, "r") as f:
+        with open(verbosef, "r", encoding=en) as f:
             lines = f.readlines()
-        with open(verbosef, "w") as f:
+        with open(verbosef, "w", encoding=en) as f:
             for line in lines:
                 line_parts = line.split(" ", 3)
                 username = line_parts[0][:-2]
@@ -366,7 +367,7 @@ def restock_count(log, restock_type):
     global restockers
 
     # Sets restock_lines equal to all restock notifs in the text
-    with open(log) as f:
+    with open(log, encoding=en) as f:
         for line in f:
             restock_lines.append(line.strip("\n"))
     
@@ -385,6 +386,11 @@ def restock_count(log, restock_type):
         restock_add(restock_type, "v")
     elif restock_type == "t":
         restock_add(restock_type, "t")
+
+    
+    with open(log, encoding=en) as f:
+        for line in f:
+            print(line) 
 
     print(indexed)
 
@@ -428,9 +434,9 @@ def pretty_dict(dict1):
 
     elif pretty == 'csv':
         sort_dict(index)
-        print("", file=open("output.csv", "w"))
+        print("", file=open("output.csv", "w", encoding=en))
         for i in range(len(indexes)):
-            print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
+            print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a", encoding=en))
 
 def get_sec(time_str):
     try:
@@ -447,7 +453,7 @@ def time_spent(log):
     global secs_logged
     global indexed
     
-    with open(log) as f:
+    with open(log, encoding=en) as f:
         for line in f:
             activity_lines.append(line.strip("\n"))
         
