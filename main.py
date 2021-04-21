@@ -61,12 +61,13 @@ turret_txt = "has just restocked a turret!"
 indexed = {}
 
 # List of restocks
-restockers = np.array([])
+restockers = []
+restock_lines = []
 
 # Logged time arrays for users, time, and time in seconds
-active_users = np.array([])
-time_logged = np.array([])
-secs_logged = np.array([])
+active_users = []
+time_logged = []
+secs_logged = []
 
 # Stage files contains all applicable files based on selected stage
 stage_files = []
@@ -74,7 +75,6 @@ stage_files = []
 def list_files():
     all_files = []
     curdir = listdir(path='.')
-
     for curfile in curdir:
         if ".txt" in curfile:
             all_files.append(curfile)
@@ -126,8 +126,7 @@ def print_files(stage):
 
     # Checks that the txt_files contains something
     if len(txt_files) == 0:
-        print("\nNo applicable logs found :/")
-        pass
+        print("\n > No applicable logs found :/")
     else:
         for txt_file in stage_files:
             print("{}{}{}--     {}".format(bolds, file_num, bolde, txt_file))
@@ -136,25 +135,28 @@ def print_files(stage):
 def file_picker():
     global log
     global txt
+    global stage_files
     # User input to choose the log
+
+    stage_files = []
     log = input("\n[[p/r/t/c/h/q]] >>> ")
     # Encoding type for the file opens, utf8 for compatability
     en = 'utf8'
     
     if log == "p":
+        print("\nFiles to parse >> ")
         print_files("trimmed")
         if len(stage_files) == 0:
             print("\n > No files found :/")
         else:
-            print("\nFiles to parse >> ")
-            file_choice = input("\nWhich file to parse? >> ")
+            file_choice = input("\nWhich file to parse? [#] >> ")
             restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
             if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
                 if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
                     print("Invalid restock type :/")
                 else:
                     # Sets the file based on file choice
-                    file_to_trim = txt_files[int(file_choice) - 1]
+                    file_to_trim = stage_files[int(file_choice) - 1]
                     restock_count(file_to_trim, restock_type)
             else:
                 print("\nInvalid file choice :/")
@@ -203,8 +205,9 @@ def file_picker():
                     print("\n > File successfully copied!")
                     print(" > New file's name: " + new_filename)
                 else:
-                    print("Not a valid option :/")
-                trim_file(new_filename, "restock")
+                    print(" > Not a valid option :/")
+                trim_file(new_filename)
+        stage_files = []
 #            except Exception as error:
 #                print(error)
     elif log == "r":
@@ -231,7 +234,7 @@ def file_picker():
                         copyfile(sel_file, verbose_name)
                         print("\nFile successfully copied!")
                     else:
-                        print("Not a valid option :/")
+                        print(" > Not a valid option :/")
             except:
                 print("Error")
 
@@ -246,7 +249,7 @@ def file_picker():
 
     # Incorrect input
     else:
-        print("\nNot a valid log input :/")
+        print("\n > Not a valid log input :/")
 
 def filename_prep(sel_file):
     if "Logistics Department - Logs - " in sel_file:
@@ -265,24 +268,25 @@ def filename_prep(sel_file):
 
 # Parameter verbosef: verbose file
 # Trims extraneous lines from a log
-def trim_file(verbosef, filetype):
+def trim_file(verbosef):
     shop = "has just restocked one item in the shop!"
     vending = "has just restocked a vending machine!"
     turret = "has just restocked a turret!"
-    if filetype == "restock":
+    if verbosef[:8] == "restocks":
         with open(verbosef, "r") as f:
             lines = f.readlines()
         with open(verbosef, "w") as f:
             for line in lines:
                 if shop in line.strip("\n") or vending in line.strip("\n") or turret in line.strip("\n"): 
+                    f.write(line)
+
+        # Second go-around, replacing verbose restock message with truncated one
         with open(verbosef, "r") as f:
             lines = f.readlines()
         with open(verbosef, "w") as f:
             for line in lines:
                 username = line.split(" ", 1)[0]
-                print(username)
                 restock_text = line.split(" ", 1)[1]
-                print(restock_text)
                 if "shop!" in restock_text:
                     restock_text = " shop\n"
                 elif "vending" in restock_text:
@@ -291,8 +295,29 @@ def trim_file(verbosef, filetype):
                     restock_text = " turret\n"
                 f.write(username + restock_text)
         print(" > File trimmed successfully!")
-    elif filetype == "activity":
-        print("Currently unsupported")
+
+    elif verbosef[:8] == "activity":
+        with open(verbosef, "r") as f:
+            lines = f.readlines()
+        with open(verbosef, "w") as f:
+            for line in lines:
+                if "'s Session Time: " in line.strip("\n"): 
+                    if "> " not in line:
+                        f.write(line)
+                    else:
+                        line = re.sub("> ", "", line)
+                        f.write(line)
+        
+        # Second go-around, trimming and converting time to secs
+        with open(verbosef, "r") as f:
+            lines = f.readlines()
+        with open(verbosef, "w") as f:
+            for line in lines:
+                line_parts = line.split(" ", 3)
+                username = line_parts[0][:-2]
+                hms_time = get_sec(line_parts[3])
+#                f.write(username + restock_text)
+                f.write(username + " " + str(hms_time) + "\n")
     else:
         print("Invalid option")
 
@@ -331,44 +356,39 @@ def sort_dict(indexes):
 def restock_count(log, restock_type):
     global indexed 
     global restockers
-    inverse_restocks = []
 
     # Sets restock_lines equal to all restock notifs in the text
     with open(log) as f:
-        restock_lines = []
         for line in f:
             restock_lines.append(line.strip("\n"))
+    
+    if restock_type == "a":
+        # Indexes values by restock amount
+        for restock_line in restock_lines:
+            user = restock_line.split(" ", 1)[0]
+            if (user not in indexed):
+                indexed[user] = 1
+            else:
+                indexed[user] += 1
 
-    if restock_type == "s":
-        text = shop_txt
-        inverse_restocks.append("vending") 
-        inverse_restocks.append("turret")
+    elif restock_type == "s":
+        restock_add(restock_type, "s")
     elif restock_type == "v":
-        text = vending_txt
-        inverse_restocks.append("shop") 
-        inverse_restocks.append("turret") 
+        restock_add(restock_type, "v")
     elif restock_type == "t":
-        text = turret_txt
-        inverse_restocks.append("shop") 
-        inverse_restocks.append("vending") 
-    else:
-        print("Invalid restock type")
-        exit()
-        
-    for restock in restock_lines:
-        if inverse_restocks[0] in restock or inverse_restocks[1] in restock:
-            restock_lines.pop(i)
-    # Trims the newline and the excess text from restock_lines and moves it to restockers
-    for i in range(len(restock_lines)):
-        restockers = np.append(restockers, re.sub(" " + text, "", restock_lines[i])) 
+        restock_add(restock_type, "t")
 
-    print(restockers)
+    print(indexed)
+
+def restock_add(restock_type, lookfor):
     # Indexes values by restock amount
-    for i in range(len(restockers)):
-        if (restockers[i] not in indexed):
-            indexed[restockers[i]] = 1
-        else:
-            indexed[restockers[i]] += 1
+    for restock_line in restock_lines:
+        if lookfor in restock_line:
+            user = restock_line.split(" ", 1)[0]
+            if (user not in indexed):
+                indexed[user] = 1
+            else:
+                indexed[user] += 1
 
 def pretty_dict(index):
     pretty = input("Pretty? [y/n/d/csv] >> ")
@@ -399,31 +419,15 @@ def pretty_dict(index):
         for i in range(len(indexes)):
             print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a"))
 
-def print_style(index):
-    print("Print what data? ")
-    print_choice = input("Indexes // Print // Len // Max [1/2/3/4] >> ")
-
-    if print_choice == "1":
-        pretty_dict(index)
-
-    elif print_choice == "2":
-        print(index)
-    
-    elif print_choice == "3":
-        print(len(index))
-
-    elif print_choice == "4":
-        max_key(index)
-
-    else:
-        print("Invalid input")
-
 def get_sec(time_str):
-    time_str = re.sub("[hms]", "", time_str)
-    h, m, s = time_str.split(':')
-    return int(int(h) * 3600 + int(m) * 60 + int(s))
+    try:
+        time_str = re.sub("[hms]", "", time_str)
+        h, m, s = time_str.split(':')
+        return int(int(h) * 3600 + int(m) * 60 + int(s))
+    except ValueError:
+        return 0
 
-def time_spent():
+def time_spent(log):
     global txt
     global active_users
     global time_logged
@@ -499,6 +503,7 @@ try:
 #secs_to_hms(seconds):
     startup()
     while True:
+        stage_files = []
         file_picker()
         # Choose vending/shop/both
         # restock()
@@ -523,4 +528,4 @@ try:
             time_spent()
 
 except KeyboardInterrupt: 
-    print("\nExiting program...")
+    print("\n\nExiting program...\n")
