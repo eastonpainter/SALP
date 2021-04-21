@@ -4,7 +4,6 @@ from sys import maxsize
 from os import listdir
 from os import rename
 from shutil import copyfile
-from massedit import edit_files
 from time import sleep
 # import march
 
@@ -62,7 +61,9 @@ indexed = {}
 
 # List of restocks
 restockers = []
+
 restock_lines = []
+activity_lines = []
 
 # Logged time arrays for users, time, and time in seconds
 active_users = []
@@ -129,7 +130,7 @@ def print_files(stage):
         print("\n > No applicable logs found :/")
     else:
         for txt_file in stage_files:
-            print("{}{}{}--     {}".format(bolds, file_num, bolde, txt_file))
+            print("{}[{}]{}--     {}".format(bolds, file_num, bolde, txt_file))
             file_num += 1
 
 def file_picker():
@@ -150,17 +151,24 @@ def file_picker():
             print("\n > No files found :/")
         else:
             file_choice = input("\nWhich file to parse? [#] >> ")
-            restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
-            if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
-                if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
-                    print("Invalid restock type :/")
-                else:
-                    # Sets the file based on file choice
-                    file_to_trim = stage_files[int(file_choice) - 1]
-                    restock_count(file_to_trim, restock_type)
-            else:
-                print("\nInvalid file choice :/")
+            try:
+                file_to_read = stage_files[int(file_choice) - 1]
+            except IndexError:
+                print("\n > Value out of range\n")
+                exit()
 
+            if file_to_read[:8] == "restocks":
+                restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
+                if isinstance(int(file_choice), int) and int(file_choice) <= len(stage_files):
+                    if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
+                        print("Invalid restock type :/")
+                    else:
+                        # Sets the file based on file choice
+                        restock_count(file_to_read, restock_type)
+                else:
+                    print("\nInvalid file choice :/")
+            else:
+                time_spent(file_to_read)
     # March logs input
 #    elif log == "mar" or log == "1" or log == "m1":
 #        with open('restock-logs2021-03-21-to-2021-03-28.txt', 'r', encoding=en) as file:
@@ -337,7 +345,6 @@ def sort_dict(indexes):
     sorted_dict = {}
     # Sorts the keys by their value
     sorted_keys = sorted(indexes, key=indexes.get)
-    print(sorted_keys)
 
     # Sorts the keys by their value, then put the values to their keys
     # Sets each value and key equal to the keys of the indexes
@@ -350,6 +357,7 @@ def sort_dict(indexes):
 
     # Zips the two sorted arrays
     final = dict(zip(rev_keys, rev_vals))
+    return final
 
 # Function to count restocks of whatever is called
 # "num", "word", and "char" are used for user input, while "text" is the restock text
@@ -390,12 +398,18 @@ def restock_add(restock_type, lookfor):
             else:
                 indexed[user] += 1
 
-def pretty_dict(index):
-    pretty = input("Pretty? [y/n/d/csv] >> ")
+def pretty_dict(dict1):
+    pretty = input("Pretty print? [y/n/csv] >> ")
+    keys = list(dict1.keys())
+    vals = list(dict1.values())
+    max_len = len(keys[0])
+
+    for j in range(len(dict1)):
+        if len(keys[j]) > max_len:
+            max_len = len(keys[j])
+        
     if pretty == 'y':
-        sort_dict(index)
-        # Pos if adds a zero to non-three-digit numbers
-        for i in range(len(indexes)):
+        for i in range(len(dict1)):
             if i+1 < 10:
                 pos = "00" + str(i+1)
             elif i+1 < 100:
@@ -403,15 +417,14 @@ def pretty_dict(index):
             else:
                 pos = str(i+1)
 
-            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
+            spaces = int((max_len - len(keys[i])) + 6) * " "
+            # print(pos + ".    " + str(keys[i]) + spaces + str(vals[i]))
+            print(str(keys[i]) + spaces + str(vals[i]))
+
+#            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
 
     elif pretty == 'n':
-        sort_dict(index)
-        print(final)
-
-    elif pretty == 'd':
-        sort_dict(index)
-        print(indexes) 
+        print(indexed)
 
     elif pretty == 'csv':
         sort_dict(index)
@@ -432,60 +445,43 @@ def time_spent(log):
     global active_users
     global time_logged
     global secs_logged
-
-    # Sets lines_arr equal to all lines containing session time
-    lines_arr = np.array(re.findall(".+'s Session Time: \d{2}h:\d{2}m:\d{2}s", txt))
-    datalen = range(len(lines_arr))
-
-    # Creates an array with all the users who logged time in the text
-    for i in datalen:
-        active_users = np.append(active_users, re.sub("", "", lines_arr[i])) 
-        np.put(active_users, i, re.sub("'s Session Time.+$", "", active_users[i]))
+    global indexed
     
-    # Makes an array of all logged times in hh:mm:ss
-    for i in datalen:
-        time_logged = np.append(time_logged, re.sub("", "", lines_arr[i])) 
-        np.put(time_logged, i, re.sub(".+'s Session Time: ", "",  time_logged[i]))
+    with open(log) as f:
+        for line in f:
+            activity_lines.append(line.strip("\n"))
+        
+    # Creates a dict with unique users and values set to 0 
+    for activity_line in activity_lines:
+        user = activity_line.split(" ", 1)[0]
+        if user not in indexed:
+            indexed[user] = 0
 
-    # Makes an array of all logged times in seconds
-    for i in datalen:
-        secs_logged = np.append(secs_logged, get_sec(time_logged[i]))
-    
-    user_times_secs = dict(zip(active_users, secs_logged))
+    # Adds up total seconds for each user
+    for activity_line in activity_lines:
+        user = activity_line.split(" ", 1)[0]
+        seconds = activity_line.split(" ", 1)[1]
 
-    # Makes a list of unique users in the dict, indexed
-    for i in datalen:
-        if active_users[i] not in indexed:
-            indexed[active_users[i]] = 0
+        indexed[user] += int(seconds)
 
-    # Array of unique users for easy access
+    # Array of unique users and total_seconds
     uni_users = list(indexed.keys())
-    
-    # Pseudocode for time parser
-    for i in range(len(uni_users)):
-        user = uni_users[i]
-        for j in datalen:
-            if active_users[j] == user:
-                indexed[user] += int(secs_logged[j])
-
-    def secs_to_hms(seconds):
-        hours = seconds // (60*60)
-        seconds %= (60*60)
-        minutes = seconds // 60
-        seconds %= 60
-        return "%02i:%02i:%02i" % (hours, minutes, seconds)
-
     total_secs = list(indexed.values())
+
     for i in range(len(total_secs)):
         total_secs[i] = secs_to_hms(total_secs[i])
         
     # Completed dict with names and total times
-    final = dict(zip(uni_users, total_secs))
+    indexed = dict(zip(uni_users, total_secs))
 
-    print_style(final)
+    pretty_dict(indexed)
 
-    exit()
-    
+def secs_to_hms(seconds):
+    hours = seconds // (60*60)
+    seconds %= (60*60)
+    minutes = seconds // 60
+    seconds %= 60
+    return "%02i:%02i:%02i" % (hours, minutes, seconds)
 
 # Try/Except statement for keyboard interrupt 
 try:
