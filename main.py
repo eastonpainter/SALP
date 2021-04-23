@@ -114,7 +114,7 @@ def main():
             main()
 
         if file_to_read[:8] == "restocks":
-            restock_type = input("\nWhat restock type? [a/s/v/t] >> ")
+            restock_type = input("\n     What restock type? [a/s/v/t] >> ")
             if restock_type == 'q':
                 main()
             if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
@@ -226,7 +226,7 @@ def main():
         main()
 
     elif command == "h":
-        print("     -----------------------------------------------------------------")
+        print("\n     -----------------------------------------------------------------")
         print("     p -- {}Print/parse{}: reads a trimmed file and outputs data".format(bolds, bolde))
         print("     t -- {}Trim{}: trims a longer file for faster parsing times".format(bolds, bolde))
         print("     r -- {}Rename{}: renames the longer file names".format(bolds, bolde))
@@ -420,8 +420,8 @@ def restock_add(restock_type, lookfor):
                 indexed[user] += 1
 
 def pretty_dict(dict1):
-    pretty = input("\nPretty print? [y/n/csv] >> ")
-    num_yn = input("Number lines? [y/n] >> ")
+    pretty = input("\n     Pretty print? [y/n/csv] >> ")
+    num_yn = input("     Number lines? [y/n] >> ")
     keys = list(dict1.keys())
     vals = list(dict1.values())
     max_len = len(keys[0])
