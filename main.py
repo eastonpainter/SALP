@@ -67,6 +67,15 @@ txt_files = list_files()
 # Startup message
 def startup():
     print(welcome)
+    # Will try to make a new file
+    # If it can prompt user to press h
+    # otherwise, do nothing
+    try:
+        open("help.txt", "x")
+        print("Press 'h' for help!")
+    except:
+        pass
+        
 
 # Which file the user will read
 def options_print(stage_files):
