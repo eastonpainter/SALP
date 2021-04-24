@@ -95,6 +95,7 @@ def main():
                 # Sets the file based on file choice
                 try:
                     restock_count(file_to_read, restock_type)
+                    indexed = {}
                 except:
                     print("\n   > Invalid option selected :/\n")
 
@@ -103,6 +104,7 @@ def main():
             time_spent(file_to_read)
             # Pretty print the returned index
             pretty_dict(indexed)
+            indexed = {}
 
     # Trims extraneous text from files
     elif command == "t":
