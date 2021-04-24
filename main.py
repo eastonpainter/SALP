@@ -52,47 +52,8 @@ secs_logged = []
 # Stage files contains all applicable files based on selected stage
 stage_files = []
 
-def list_files():
-    all_files = []
-    curdir = listdir(path='.')
-    for curfile in curdir:
-        if ".txt" in curfile:
-            all_files.append(curfile)
-    return all_files
-
-txt_files = list_files()
-
 ### Functions ### 
 
-# Startup message
-def startup():
-    print(welcome)
-    # Will try to make a new file
-    # If it can prompt user to press h
-    # otherwise, do nothing
-    try:
-        open("help.txt", "x")
-        print("Press 'h' for help!")
-    except:
-        pass
-        
-
-# Which file the user will read
-def options_print(stage_files):
-    if len(stage_files) == 0:
-        print("\n > No applicable logs found :/")
-        main()
-    else:
-        file_count = 1
-        print("            {}Duration                 Type          Length{}".format(bolds, bolde))
-        for i in stage_files:
-            data_fields = i.split("_", 7)
-            start_date = data_fields[1] + "/" + data_fields[2] + "/" + data_fields[3] 
-            end_date = data_fields[4] + "/" + data_fields[5] + "/" + data_fields[6] 
-            file_type = first_upper(data_fields[0])
-            length_type = first_upper(data_fields[7][:-4])
-            print("     {}    {} - {}      {}      {}".format(file_count, start_date, end_date, file_type, length_type))
-    
 # Main loop for the program that prints the prompt and handles input
 def main():
     global command
@@ -152,9 +113,11 @@ def main():
         options_print(stage_files)
 
         file_trim_choice = input("\n      Which file to trim? [#] >> ")
+        if file_trim_choice == 'q':
+            main()
 
         rename_copy = input("\n      Rename or make a copy? [r/c] >> ")
-        if rename_copy == 'q' or file_trim_choice == 'q':
+        if rename_copy == 'q':
             main()
 
         # Checks to see that the user input was in range
@@ -192,8 +155,8 @@ def main():
         find_files("raw")
 
         print("     Files to rename >>")
-        # file_print(stage_files)
-        options_print(stage_files)
+        file_print(stage_files)
+        # options_print(stage_files)
 
         file_choose = input("\n     Which file? [#]  >> ")
         rename_copy = input("\n     Rename or make a copy? [r/c] >> ")
@@ -233,16 +196,8 @@ def main():
     elif command == "helpmeplease":
         options_print()
         main()
-
     elif command == "h":
-        print("\n     -----------------------------------------------------------------")
-        print("     p -- {}Print/parse{}: reads a trimmed file and outputs data".format(bolds, bolde))
-        print("     t -- {}Trim{}: trims a longer file for faster parsing times".format(bolds, bolde))
-        print("     r -- {}Rename{}: renames the longer file names".format(bolds, bolde))
-        print("     h -- {}Help{}: prints this help text (how would you get here?)".format(bolds, bolde))
-        print("     q -- {}Quit{}: quits the program, will return to prompt if in command".format(bolds, bolde))
-        print("     > Flow of commands should be: {}r{} and {}t{} initially then {}p{} afterwards".format(bolds, bolde, bolds, bolde, bolds, bolde))
-        print("     -----------------------------------------------------------------")
+        help_text()
     
     elif command == "q":
         print("\n     > Exiting program ...\n")
@@ -251,6 +206,83 @@ def main():
     # Incorrect input
     else:
         print("\n > Not a valid log input :/")
+
+def list_files():
+    all_files = []
+    curdir = listdir(path='.')
+    for curfile in curdir:
+        if ".txt" in curfile:
+            all_files.append(curfile)
+    return all_files
+
+# Startup message
+def startup():
+    print(welcome)
+    # Will try to make a new file
+    # If it can prompt user to press h
+    # otherwise, do nothing
+    try:
+        open("help.txt", "x")
+        print("Press 'h' for help!")
+    except:
+        pass
+        
+# Which file the user will read
+def options_print(stage_files):
+    if len(stage_files) == 0:
+        print("\n > No applicable logs found :/")
+        main()
+    else:
+        file_count = 1
+        print("          {}Duration                 Type          Length{}".format(bolds, bolde))
+        for i in stage_files:
+            data_fields = i.split("_", 7)
+            start_date = data_fields[1] + "/" + data_fields[2] + "/" + data_fields[3] 
+            end_date = data_fields[4] + "/" + data_fields[5] + "/" + data_fields[6] 
+            file_type = first_upper(data_fields[0])
+            length_type = first_upper(data_fields[7][:-4])
+            print("     {}    {} - {}      {}      {}".format(file_count, start_date, end_date, file_type, length_type))
+            file_count += 1
+    
+# Function to count restocks of whatever is called
+# "num", "word", and "char" are used for user input, while "text" is the restock text
+def restock_count(command, restock_type):
+    global indexed 
+    global restockers
+
+    # Sets restock_lines equal to all restock notifs in the text
+    with open(command, encoding=en) as f:
+        for line in f:
+            restock_lines.append(line.strip("\n"))
+    
+    if restock_type == "a":
+        # Indexes values by restock amount
+        for restock_line in restock_lines:
+            user = restock_line.split(" ", 1)[0]
+            if (user not in indexed):
+                indexed[user] = 1
+            else:
+                indexed[user] += 1
+
+    elif restock_type == "s":
+        restock_add(restock_type, "shop")
+    elif restock_type == "v":
+        restock_add(restock_type, "vending")
+    elif restock_type == "t":
+        restock_add(restock_type, "turret")
+
+    indexed = sort_dict(indexed)
+    pretty_dict(indexed)
+
+def restock_add(restock_type, lookfor):
+    # Indexes values by restock amount
+    for restock_line in restock_lines:
+        if lookfor in restock_line:
+            user = restock_line.split(" ", 1)[0]
+            if (user not in indexed):
+                indexed[user] = 1
+            else:
+                indexed[user] += 1
 
 def truncate_filename(sel_file):
     if "Logistics Department - Logs - " in sel_file:
@@ -388,46 +420,6 @@ def sort_dict(indexes):
     final = dict(zip(rev_keys, rev_vals))
     return final
 
-# Function to count restocks of whatever is called
-# "num", "word", and "char" are used for user input, while "text" is the restock text
-def restock_count(command, restock_type):
-    global indexed 
-    global restockers
-
-    # Sets restock_lines equal to all restock notifs in the text
-    with open(command, encoding=en) as f:
-        for line in f:
-            restock_lines.append(line.strip("\n"))
-    
-    if restock_type == "a":
-        # Indexes values by restock amount
-        for restock_line in restock_lines:
-            user = restock_line.split(" ", 1)[0]
-            if (user not in indexed):
-                indexed[user] = 1
-            else:
-                indexed[user] += 1
-
-    elif restock_type == "s":
-        restock_add(restock_type, "s")
-    elif restock_type == "v":
-        restock_add(restock_type, "v")
-    elif restock_type == "t":
-        restock_add(restock_type, "t")
-
-    indexed = sort_dict(indexed)
-    pretty_dict(indexed)
-
-def restock_add(restock_type, lookfor):
-    # Indexes values by restock amount
-    for restock_line in restock_lines:
-        if lookfor in restock_line:
-            user = restock_line.split(" ", 1)[0]
-            if (user not in indexed):
-                indexed[user] = 1
-            else:
-                indexed[user] += 1
-
 def pretty_dict(dict1):
     pretty = input("\n     Pretty print? [y/n/csv] >> ")
     num_yn = input("     Number lines? [y/n] >> ")
@@ -463,11 +455,10 @@ def pretty_dict(dict1):
     elif pretty == 'n':
         print(indexed)
 
-    elif pretty == 'csv':
-        sort_dict(index)
-        print("", file=open("output.csv", "w", encoding=en))
-        for i in range(len(indexes)):
-            print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a", encoding=en))
+#    elif pretty == 'csv':
+#          file=open("output.csv", "w", encoding=en))
+ #        for i in range(len(indexes)):
+  #           print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a", encoding=en))
 
 def get_sec(time_str):
     try:
@@ -515,10 +506,6 @@ def time_spent(command):
 
     return indexed
 
-def first_upper(string):
-    string = string[0].upper() + string[1:]
-    return string
-
 # Converts an int (seconds) into a string formatted in hh:mm:ss
 def secs_to_hms(seconds):
     hours = seconds // (60*60)
@@ -526,6 +513,21 @@ def secs_to_hms(seconds):
     minutes = seconds // 60
     seconds %= 60
     return "%02i:%02i:%02i" % (hours, minutes, seconds)
+
+def help_text():
+        print("\n     -----------------------------------------------------------------")
+        print("     p -- {}Print/parse{}: reads a trimmed file and outputs data".format(bolds, bolde))
+        print("     t -- {}Trim{}: trims a longer file for faster parsing times".format(bolds, bolde))
+        print("     r -- {}Rename{}: renames the longer file names".format(bolds, bolde))
+        print("     h -- {}Help{}: prints this help text (how would you get here?)".format(bolds, bolde))
+        print("     q -- {}Quit{}: quits the program, will return to prompt if in command".format(bolds, bolde))
+        print("     > Flow of commands should be: {}r{} and {}t{} initially then {}p{} afterwards".format(bolds, bolde, bolds, bolde, bolds, bolde))
+        print("     -----------------------------------------------------------------")
+
+# Returns a string with the first letter capitalized
+def first_upper(string):
+    string = string[0].upper() + string[1:]
+    return string
 
 # Try/Except statement for keyboard interrupt 
 try:
@@ -535,6 +537,8 @@ try:
         
         # Removed stage files from previous command
         stage_files = []
+        # Remove previous values from indexed
+        indexed = {}
         # Call mainloop
         main()
 
