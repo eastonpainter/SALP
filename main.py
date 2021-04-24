@@ -4,6 +4,7 @@ from sys import maxsize
 from os import listdir
 from os import rename
 from shutil import copyfile
+import csv
 
 # TODO: add support for repairing
 # TODO: custom time input
@@ -237,7 +238,7 @@ def options_print(stage_files):
         print("          {}Duration                 Type          Length{}".format(bolds, bolde))
         for i in stage_files:
             data_fields = i.split("_", 7)
-            start_date = data_fields[1] + "/" + data_fields[2] + "/" + data_fields[3] 
+            start_date = data_fields[1] + "/" + data_fields[2] + "/" + data_fields[4] 
             end_date = data_fields[4] + "/" + data_fields[5] + "/" + data_fields[6] 
             file_type = first_upper(data_fields[0])
             length_type = first_upper(data_fields[7][:-4])
@@ -422,13 +423,19 @@ def sort_dict(indexes):
 
 def pretty_dict(dict1):
     pretty = input("\n     Pretty print? [y/n/csv] >> ")
-    num_yn = input("     Number lines? [y/n] >> ")
+
+    if pretty == 'q':
+        main()
+
+    if pretty != 'csv':
+        num_yn = input("     Number lines? [y/n] >> ")
+        if num_yn == 'q':
+            main()
+            
     keys = list(dict1.keys())
     vals = list(dict1.values())
     max_len = len(keys[0])
 
-    if pretty == 'q' or num_yn == 'q':
-        main()
     
     for j in range(len(dict1)):
         if len(keys[j]) > max_len:
@@ -450,15 +457,16 @@ def pretty_dict(dict1):
                 print(pos + ".    " + str(keys[i]) + spaces + str(vals[i]))
             elif num_yn == 'n':
                 print(str(keys[i]) + spaces + str(vals[i]))
-#            print(pos + "-  " + str(rev_keys[i]) + 10 * " " + str(rev_vals[i]))
 
     elif pretty == 'n':
-        print(indexed)
+        print(dict1)
 
-#    elif pretty == 'csv':
-#          file=open("output.csv", "w", encoding=en))
- #        for i in range(len(indexes)):
-  #           print(str(rev_keys[i]) + "," + str(rev_vals[i]), file=open("output.csv", "a", encoding=en))
+    elif pretty == 'csv':
+        with open('output.csv', 'w') as f:  
+            writer = csv.writer(f)
+            for k, v in dict1.items():
+                writer.writerow([k, v]) 
+        print("\n   > CSV successfully written to output.csv!")
 
 def get_sec(time_str):
     try:
