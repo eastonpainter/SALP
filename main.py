@@ -56,7 +56,7 @@ stage_files = []
 ### Functions ### 
 
 # Main loop for the program that prints the prompt and handles input
-def main():
+def mainloop():
     global command
     global txt
     global stage_files
@@ -72,39 +72,39 @@ def main():
         options_print(stage_files)
         file_choice = input("\n     Which file to parse? [#] >> ")
         if file_choice == 'q':
-            main()
+            mainloop()
         # Checks to see that the user input was in range
         # otherwise, call main loop again
         try:
             file_to_read = stage_files[int(file_choice) - 1]
+            if file_to_read[:8] == "restocks":
+                restock_type = input("\n     What restock type? [a/s/v/t] >> ")
+                if restock_type == 'q':
+                    mainloop()
+                if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
+                    print("\n   > Invalid restock type :/\n")
+                    mainloop()
+                else:
+                    # Sets the file based on file choice
+                    try:
+                        restock_count(file_to_read, restock_type)
+                        indexed = {}
+                    except:
+                        print("\n   > Invalid option selected :/\n")
+
+            elif file_to_read[:8] == "activity":
+                # Calculate time spent based on file selected
+                time_spent(file_to_read)
+                # Pretty print the returned index
+                pretty_dict(indexed)
+                indexed = {}
         except IndexError:
             print("\n     > Value out of range :/")
-            main()
+            mainloop()
         except ValueError:
             print("\n     > Invalid option selected :/")
-            main()
+            mainloop()
 
-        if file_to_read[:8] == "restocks":
-            restock_type = input("\n     What restock type? [a/s/v/t] >> ")
-            if restock_type == 'q':
-                main()
-            if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
-                print("\n   > Invalid restock type :/\n")
-                main()
-            else:
-                # Sets the file based on file choice
-                try:
-                    restock_count(file_to_read, restock_type)
-                    indexed = {}
-                except:
-                    print("\n   > Invalid option selected :/\n")
-
-        elif file_to_read[:8] == "activity":
-            # Calculate time spent based on file selected
-            time_spent(file_to_read)
-            # Pretty print the returned index
-            pretty_dict(indexed)
-            indexed = {}
 
     # Trims extraneous text from files
     elif command == "t":
@@ -117,11 +117,11 @@ def main():
 
         file_trim_choice = input("\n      Which file to trim? [#] >> ")
         if file_trim_choice == 'q':
-            main()
+            mainloop()
 
         rename_copy = input("\n      Rename or make a copy? [r/c] >> ")
         if rename_copy == 'q':
-            main()
+            mainloop()
 
         # Checks to see that the user input was in range
         # otherwise, call main loop again
@@ -129,10 +129,10 @@ def main():
             file_select = stage_files[int(file_trim_choice) - 1]
         except IndexError:
             print("\n     > Value out of range :/")
-            main()
+            mainloop()
         except ValueError:
             print("\n   > Invalid option selected :/")
-            main()
+            mainloop()
 
         # Selected file based on the available files and user input
         file_select = stage_files[int(file_trim_choice) - 1]
@@ -148,7 +148,7 @@ def main():
             print("\n   > File successfully copied!")
             print("   > New file's name: " + new_filename)
         elif rename_copy == 'q':
-            main()
+            mainloop()
         else:
             print(" > Not a valid option :/")
         trim_file(new_filename)
@@ -164,16 +164,16 @@ def main():
         file_choose = input("\n     Which file? [#]  >> ")
         rename_copy = input("\n     Rename or make a copy? [r/c] >> ")
         if file_choose == 'q' or rename_copy == 'q':
-            main()
+            mainloop()
 
         try:
             sel_file = stage_files[int(file_choose) - 1]
         except IndexError:
             print("\n     > Value out of range :/")
-            main()
+            mainloop()
         except ValueError:
             print("\n   > Invalid option selected :/")
-            main()
+            mainloop()
 
         # Finds the verbose file name based on the long form
         verbose_name = truncate_filename(sel_file)
@@ -190,7 +190,7 @@ def main():
             print("       > New file's name: " + verbose_name)
 
         elif rename_copy == 'q':
-            main()
+            mainloop()
 
         else:
             print("\n     > Invalid option :/")
@@ -198,7 +198,7 @@ def main():
     # Print help message
     elif command == "helpmeplease":
         options_print()
-        main()
+        mainloop()
     elif command == "h":
         help_text()
     
@@ -234,7 +234,7 @@ def startup():
 def options_print(stage_files):
     if len(stage_files) == 0:
         print("\n > No applicable logs found :/")
-        main()
+        mainloop()
     else:
         file_count = 1
         print("          {}Duration                 Type          Length{}".format(bolds, bolde))
@@ -276,6 +276,8 @@ def restock_count(command, restock_type):
 
     indexed = sort_dict(indexed)
     pretty_dict(indexed)
+
+    restock_lines = []
 
 def restock_add(restock_type, lookfor):
     # Indexes values by restock amount
@@ -380,7 +382,7 @@ def file_print(files_arr):
     # Checks that the txt_files contains something
     if len(files_arr) == 0:
         print("\n > No applicable logs found :/")
-        main()
+        mainloop()
     else:
         for txt_file in files_arr:
             print("     {}[{}]{}--     {}".format(bolds, file_num, bolde, txt_file))
@@ -427,12 +429,12 @@ def pretty_dict(dict1):
     pretty = input("\n     Pretty print? [y/n/csv] >> ")
 
     if pretty == 'q':
-        main()
+        mainloop()
 
     if pretty != 'csv':
         num_yn = input("     Number lines? [y/n] >> ")
         if num_yn == 'q':
-            main()
+            mainloop()
             
     keys = list(dict1.keys())
     vals = list(dict1.values())
@@ -550,7 +552,8 @@ try:
         # Remove previous values from indexed
         indexed = {}
         # Call mainloop
-        main()
+        mainloop()
+        indexed = {}
 
 except KeyboardInterrupt: 
     print("\n\n     > Exiting program ...\n")
