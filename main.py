@@ -86,11 +86,11 @@ def mainloop():
                     mainloop()
                 else:
                     # Sets the file based on file choice
-                    try:
-                        restock_count(file_to_read, restock_type)
-                        indexed = {}
-                    except:
-                        print("\n   > Invalid option selected :/\n")
+#                    try:
+                    restock_count(file_to_read, restock_type)
+                    indexed = {}
+#                    except:
+#                        print("\n   > Invalid option selected :/\n")
 
             elif file_to_read[:8] == "activity":
                 # Calculate time spent based on file selected
@@ -252,6 +252,7 @@ def options_print(stage_files):
 def restock_count(command, restock_type):
     global indexed 
     global restockers
+    global restock_lines
 
     # Sets restock_lines equal to all restock notifs in the text
     with open(command, encoding=en) as f:
