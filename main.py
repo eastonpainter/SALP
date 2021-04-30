@@ -32,9 +32,13 @@ command = ""
 txt = ""
 restock_message = " has just restocked "
 
-shop_txt = "has just restocked one item in the shop!"
-vending_txt = "has just restocked a vending machine!"
-turret_txt = "has just restocked a turret!"
+r_shop_txt = "has just restocked one item in the shop!"
+r_vending_txt = "has just restocked a vending machine!"
+r_turret_txt = "has just restocked a turret!"
+
+f_shop_txt = "has just repaired a Door!"
+f_vending_txt = "has just repaired a Vending Machine!"
+f_turret_txt = "has just repaired a Turret!"
 
 # Indexed dict containing all usernames and occurences of said usernames
 indexed = {}
@@ -71,26 +75,41 @@ def mainloop():
         # file_print(stage_files)
         options_print(stage_files)
         file_choice = input("\n     Which file to parse? [#] >> ")
-        if file_choice == 'q':
-            mainloop()
+        input_quit(file_choice)
         # Checks to see that the user input was in range
         # otherwise, call main loop again
         try:
             file_to_read = stage_files[int(file_choice) - 1]
             if file_to_read[:8] == "restocks":
                 restock_type = input("\n     What restock type? [a/s/v/t] >> ")
-                if restock_type == 'q':
-                    mainloop()
+                # Quits if 'q' was entered
+                input_quit(restock_type)
                 if restock_type != "a" and restock_type != "s" and restock_type != "v" and restock_type != "t":
                     print("\n   > Invalid restock type :/\n")
                     mainloop()
                 else:
                     # Sets the file based on file choice
-#                    try:
-                    restock_count(file_to_read, restock_type)
-                    indexed = {}
-#                    except:
-#                        print("\n   > Invalid option selected :/\n")
+                    try:
+                        restock_count(file_to_read, restock_type)
+                        indexed = {}
+                    except:
+                        print("\n   > Invalid option selected :/\n")
+
+            if file_to_read[:8] == "repairs-":
+                repairs_type = input("\n     What repair type? [a/d/v] >> ")
+                # Quits if 'q' was entered
+                input_quit(repairs_type)
+
+                if repairs_type != "a" and repairs_type != "d" and repairs_type != "v":
+                    print("\n   > Invalid restock type :/\n")
+                    mainloop()
+                else:
+                    # Sets the file based on file choice
+                    try:
+                        restock_count(file_to_read, repairs_type)
+                        indexed = {}
+                    except:
+                        print("\n   > Invalid option selected :/\n")
 
             elif file_to_read[:8] == "activity":
                 # Calculate time spent based on file selected
@@ -162,9 +181,10 @@ def mainloop():
         # options_print(stage_files)
 
         file_choose = input("\n     Which file? [#]  >> ")
+        # Quits to mainloop if input is 'q'
+        input_quit(file_choose)
         rename_copy = input("\n     Rename or make a copy? [r/c] >> ")
-        if file_choose == 'q' or rename_copy == 'q':
-            mainloop()
+        input_quit(rename_copy)
 
         try:
             sel_file = stage_files[int(file_choose) - 1]
@@ -268,8 +288,8 @@ def restock_count(command, restock_type):
             else:
                 indexed[user] += 1
 
-    elif restock_type == "s":
-        restock_add(restock_type, "shop")
+    elif restock_type == "d":
+        restock_add(restock_type, "door")
     elif restock_type == "v":
         restock_add(restock_type, "vending")
     elif restock_type == "t":
@@ -293,14 +313,26 @@ def restock_add(restock_type, lookfor):
 def truncate_filename(sel_file):
     if "Logistics Department - Logs - " in sel_file:
         log_type = findall("(restock|activity)", sel_file)
-        if log_type == "restock":
+        if log_type[0] == "restock":
             log_type = "restocks"
         dates = findall("\d{4}-\d{2}-\d{2}", sel_file)
         months = [dates[0][5:7], dates[1][5:7]] 
         days = [dates[0][-2:], dates[1][-2:]] 
         years = [dates[0][2:4], dates[1][2:4]]
-        verbose_name = "{}_{}_{}_{}_{}_{}_{}_verbose.txt".format(log_type[0], months[0], days[0], years[0], months[1], days[1], years[1])      
+        verbose_name = "{}_{}_{}_{}_{}_{}_{}_verbose.txt".format(log_type, months[0], days[0], years[0], months[1], days[1], years[1])      
         return verbose_name
+    elif "Engineering__Technical_-_Logs" in sel_file:
+        log_type = findall("(repair|activity)", sel_file)
+        if log_type[0] == "repair":
+            log_type = "repairs-"
+        dates = findall("\d{4}-\d{2}-\d{2}", sel_file)
+
+        months = [dates[0][5:7], dates[1][5:7]] 
+        days = [dates[0][-2:], dates[1][-2:]] 
+        years = [dates[0][2:4], dates[1][2:4]]
+        verbose_name = "{}_{}_{}_{}_{}_{}_{}_verbose.txt".format(log_type, months[0], days[0], years[0], months[1], days[1], years[1])      
+        return verbose_name
+
     else:
         print("Not a valid file to rename! Maybe try to trim the file next?")
     # Original file name: Logistics Department - Logs - restocks-logs [nums] (yyyy-mm-dd to yyyy-mm-dd).txt
@@ -313,7 +345,7 @@ def trim_file(verbosef):
             lines = f.readlines()
         with open(verbosef, "w", encoding=en) as f:
             for line in lines:
-                if shop_txt in line.strip("\n") or vending_txt in line.strip("\n") or turret_txt in line.strip("\n"): 
+                if r_shop_txt in line.strip("\n") or r_vending_txt in line.strip("\n") or r_turret_txt in line.strip("\n"): 
                     f.write(line)
 
         # Second go-around, replacing verbose restock message with truncated one
@@ -330,6 +362,31 @@ def trim_file(verbosef):
                 elif "turret!" in restock_text:
                     restock_text = " turret\n"
                 f.write(username + restock_text)
+        print("   > File trimmed successfully!")
+
+    elif verbosef[:8] == "repairs-":
+        with open(verbosef, "r", encoding=en) as f:
+            lines = f.readlines()
+        with open(verbosef, "w", encoding=en) as f:
+            for line in lines:
+                if f_shop_txt in line.strip("\n") or f_vending_txt in line.strip("\n") or f_turret_txt in line.strip("\n"): 
+                    f.write(line)
+
+        # Second go-around, replacing verbose restock message with truncated one
+        with open(verbosef, "r", encoding=en) as f:
+            lines = f.readlines()
+        with open(verbosef, "w", encoding=en) as f:
+            for line in lines:
+                username = line.split(" ", 1)[0]
+                repairs_text = line.split(" ", 1)[1]
+
+                if "Door!" in repairs_text:
+                    repairs_text = " door\n"
+                elif "Machine!" in repairs_text:
+                    repairs_text = " vending\n"
+                # elif "turret!" in restock_text:
+                #    restock_text = " turret\n"
+                f.write(username + repairs_text)
         print("   > File trimmed successfully!")
 
     elif verbosef[:8] == "activity":
@@ -363,7 +420,7 @@ def find_files(stage):
     
     if stage == "raw":  
         for txt_file in txt_files:
-            if "Logistics Department - Logs -" in txt_file:
+            if "Logistics Department - Logs -" in txt_file or 'Engineering__Technical_-_Logs' in txt_file:
                 stage_files.append(txt_file)
     elif stage == "verbose":  
         for txt_file in txt_files:
@@ -536,6 +593,10 @@ def help_text():
         print("     q -- {}Quit{}: quits the program, will return to prompt if in command".format(bolds, bolde))
         print("     > Flow of commands should be: {}r{} and {}t{} initially then {}p{} afterwards".format(bolds, bolde, bolds, bolde, bolds, bolde))
         print("     -----------------------------------------------------------------")
+
+def input_quit(user_input):
+    if user_input == 'q':
+        mainloop()
 
 # Returns a string with the first letter capitalized
 def first_upper(string):
