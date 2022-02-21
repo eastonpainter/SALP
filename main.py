@@ -23,8 +23,6 @@ Welcome to...
      ___) / ___ \| |___|  __/
     |____/_/   \_\_____|_|
 < ---------------------------------- >"""
-bolds = '\033[1m'
-bolde = '\033[0m'
 
 # Encoding type for the file opens, utf8 for compatability
 en = 'utf8'
@@ -113,7 +111,7 @@ def mainloop():
 
             elif file_to_read[:8] == "activity":
                 # Calculate time spent based on file selected
-                time_spent(file_to_read)
+                indexed = time_spent(file_to_read)
                 # Pretty print the returned index
                 pretty_dict(indexed)
                 indexed = {}
@@ -257,7 +255,7 @@ def options_print(stage_files):
         mainloop()
     else:
         file_count = 1
-        print("          {}Duration                 Type          Length{}".format(bolds, bolde))
+        print("          Duration                 Type          Length")
         for i in stage_files:
             data_fields = i.split("_", 7)
             start_date = data_fields[1] + "/" + data_fields[2] + "/" + data_fields[4] 
@@ -443,7 +441,7 @@ def file_print(files_arr):
         mainloop()
     else:
         for txt_file in files_arr:
-            print("     {}[{}]{}--     {}".format(bolds, file_num, bolde, txt_file))
+            print("     [{}]--     {}".format(file_num,txt_file))
             file_num += 1
 
 # Prints based on stage of the file
@@ -586,12 +584,12 @@ def secs_to_hms(seconds):
 
 def help_text():
         print("\n     -----------------------------------------------------------------")
-        print("     p -- {}Print/parse{}: reads a trimmed file and outputs data".format(bolds, bolde))
-        print("     t -- {}Trim{}: trims a longer file for faster parsing times".format(bolds, bolde))
-        print("     r -- {}Rename{}: renames the longer file names".format(bolds, bolde))
-        print("     h -- {}Help{}: prints this help text (how would you get here?)".format(bolds, bolde))
-        print("     q -- {}Quit{}: quits the program, will return to prompt if in command".format(bolds, bolde))
-        print("     > Flow of commands should be: {}r{} and {}t{} initially then {}p{} afterwards".format(bolds, bolde, bolds, bolde, bolds, bolde))
+        print("     p -- Print/parse: reads a trimmed file and outputs data")
+        print("     t -- Trim: trims a longer file for faster parsing times")
+        print("     r -- Rename: renames the longer file names")
+        print("     h -- Help: prints this help text (how would you get here?)")
+        print("     q -- Quit: quits the program, will return to prompt if in command")
+        print("     > Flow of commands should be: r and t initially then p afterwards")
         print("     -----------------------------------------------------------------")
 
 def input_quit(user_input):
